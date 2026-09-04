@@ -3,7 +3,7 @@
 **Effective Date:** September 5, 2026  
 **Last Updated:** September 5, 2026  
 **Open Source Repository:** [https://github.com/malilion/ContextLion](https://github.com/malilion/ContextLion)  
-**Maintainer:** Malilion Browser Tools Team (<malilion.dev@gmail.com>)
+**Maintainer:** Malilion Browser Tools Team ([malilion.dev@gmail.com](mailto:malilion.dev@gmail.com))
 
 [English](#english) | [繁體中文](#繁體中文)
 
@@ -71,7 +71,7 @@ If you have questions about this Privacy Policy or wish to inspect the source co
 
 - **Repository:** [https://github.com/malilion/ContextLion](https://github.com/malilion/ContextLion)
 - **Issues & Support:** [https://github.com/malilion/ContextLion/issues](https://github.com/malilion/ContextLion/issues)
-- **Email Contact:** <malilion.dev@gmail.com>
+- **Email Contact:** [malilion.dev@gmail.com](mailto:malilion.dev@gmail.com)
 
 ---
 
@@ -137,4 +137,4 @@ ContextLion 恪守 Google 開發人員計畫政策：
 
 - **官方開源儲存庫：** [https://github.com/malilion/ContextLion](https://github.com/malilion/ContextLion)
 - **問題回報 (Issues)：** [https://github.com/malilion/ContextLion/issues](https://github.com/malilion/ContextLion/issues)
-- **聯絡電子郵件：** <malilion.dev@gmail.com>
+- **聯絡電子郵件：** [malilion.dev@gmail.com](mailto:malilion.dev@gmail.com)
