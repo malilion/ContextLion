@@ -155,7 +155,7 @@ ContextLion 的單一用途是將使用者主動瀏覽的網頁或特定選取�
 ### 4. 隱私權政策網址 (Privacy Policy URL)
 在後台填寫公開的 PRIVACY.md 網址，例如：
 ```text
-https://github.com/malilion/context-lion/blob/main/PRIVACY.md
+https://github.com/malilion/ContextLion/blob/main/PRIVACY.md
 ```
 *(若尚未開源或有自己的網站，可填寫個人部落格或 GitHub gist 頁面)*
 
