@@ -1,8 +1,12 @@
+import type { PromptPreset } from '../context/prompt-presets'
+
 export interface UserPreferences {
   theme: 'dark' | 'light' | 'system'
   defaultCopyFormat: 'ai-context' | 'markdown' | 'plain-text'
   includeImages: boolean
   includeLinks: boolean
+  defaultPromptPreset: string
+  customPrompts: PromptPreset[]
 }
 
 const DEFAULT_PREFERENCES: UserPreferences = {
@@ -10,6 +14,8 @@ const DEFAULT_PREFERENCES: UserPreferences = {
   defaultCopyFormat: 'ai-context',
   includeImages: true,
   includeLinks: true,
+  defaultPromptPreset: 'none',
+  customPrompts: [],
 }
 
 const PREFS_KEY = 'context_lion_preferences'

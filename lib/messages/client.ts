@@ -65,8 +65,31 @@ export function isExtractableUrl(url: string): { ok: boolean; reason?: string } 
 }
 
 /**
- * Requests page content extraction from the active tab.
- * Injects content script via chrome.scripting if it is not already running.
+ * Ensures extractor script is injected into the active tab.
+ */
+async function ensureScriptInjected(tabId: number): Promise<void> {
+  try {
+    const pingRes = (await chrome.tabs.sendMessage(tabId, {
+      id: `ping_${Date.now()}`,
+      type: MESSAGE_TYPES.PING,
+      timestamp: Date.now(),
+    })) as ExtensionResponse<{ pong: boolean }>
+    if (pingRes && pingRes.success) return
+  } catch {
+    // Need injection
+  }
+
+  await chrome.scripting.executeScript({
+    target: { tabId },
+    files: ['extractor.js'],
+  })
+
+  // Brief pause for script initialization
+  await new Promise((resolve) => setTimeout(resolve, 80))
+}
+
+/**
+ * Requests full page content extraction from the active tab.
  */
 export async function requestPageExtraction(): Promise<ExtensionResponse<RawExtraction>> {
   try {
@@ -82,66 +105,23 @@ export async function requestPageExtraction(): Promise<ExtensionResponse<RawExtr
       }
     }
 
+    await ensureScriptInjected(tab.id)
+
     const message: ExtensionMessage = {
       id: `msg_${Date.now()}_${Math.random().toString(36).substring(2, 7)}`,
       type: MESSAGE_TYPES.EXTRACT_PAGE,
       timestamp: Date.now(),
     }
 
-    // Try sending message to existing content script
-    try {
-      const res = (await chrome.tabs.sendMessage(
-        tab.id,
-        message
-      )) as ExtensionResponse<RawExtraction>
-      if (res) return res
-    } catch {
-      // Content script may not be injected yet, proceed to injection
-    }
+    const res = (await chrome.tabs.sendMessage(tab.id, message)) as ExtensionResponse<RawExtraction>
+    if (res) return res
 
-    // Inject the extractor script
-    try {
-      await chrome.scripting.executeScript({
-        target: { tabId: tab.id },
-        files: ['extractor.js'],
-      })
-    } catch (injectErr: unknown) {
-      const injectMsg = injectErr instanceof Error ? injectErr.message : String(injectErr)
-      return {
-        success: false,
-        error: {
-          code: 'INJECTION_FAILED',
-          message: `Could not inject extractor script: ${injectMsg}`,
-        },
-      }
-    }
-
-    // Give content script a brief moment to initialize
-    await new Promise((resolve) => setTimeout(resolve, 80))
-
-    // Retry sending message
-    try {
-      const res = (await chrome.tabs.sendMessage(
-        tab.id,
-        message
-      )) as ExtensionResponse<RawExtraction>
-      if (res) return res
-      return {
-        success: false,
-        error: {
-          code: 'NO_RESPONSE',
-          message: 'The page content script did not return any extraction data.',
-        },
-      }
-    } catch (msgErr: unknown) {
-      const errText = msgErr instanceof Error ? msgErr.message : String(msgErr)
-      return {
-        success: false,
-        error: {
-          code: 'COMMUNICATION_ERROR',
-          message: `Failed to communicate with page: ${errText}`,
-        },
-      }
+    return {
+      success: false,
+      error: {
+        code: 'NO_RESPONSE',
+        message: 'The page extractor did not return any extraction data.',
+      },
     }
   } catch (error: unknown) {
     const msg = error instanceof Error ? error.message : String(error)
@@ -153,4 +133,108 @@ export async function requestPageExtraction(): Promise<ExtensionResponse<RawExtr
       },
     }
   }
+}
+
+/**
+ * Requests extraction of current text selection from the active tab.
+ */
+export async function requestSelectionExtraction(): Promise<
+  ExtensionResponse<RawExtraction | null>
+> {
+  try {
+    const tab = await getActiveTab()
+    const check = isExtractableUrl(tab.url)
+    if (!check.ok) {
+      return {
+        success: false,
+        error: {
+          code: 'PERMISSION_DENIED',
+          message: check.reason || 'This page cannot be captured.',
+        },
+      }
+    }
+
+    await ensureScriptInjected(tab.id)
+
+    const message: ExtensionMessage = {
+      id: `sel_${Date.now()}_${Math.random().toString(36).substring(2, 7)}`,
+      type: MESSAGE_TYPES.EXTRACT_SELECTION,
+      timestamp: Date.now(),
+    }
+
+    const res = (await chrome.tabs.sendMessage(
+      tab.id,
+      message
+    )) as ExtensionResponse<RawExtraction | null>
+    return res
+  } catch (error: unknown) {
+    const msg = error instanceof Error ? error.message : String(error)
+    return {
+      success: false,
+      error: {
+        code: 'SELECTION_ERROR',
+        message: msg,
+      },
+    }
+  }
+}
+
+/**
+ * Triggers interactive visual element picker on the active tab.
+ */
+export async function requestStartElementPicker(): Promise<ExtensionResponse<{ active: boolean }>> {
+  try {
+    const tab = await getActiveTab()
+    const check = isExtractableUrl(tab.url)
+    if (!check.ok) {
+      return {
+        success: false,
+        error: {
+          code: 'PERMISSION_DENIED',
+          message: check.reason || 'This page cannot be captured.',
+        },
+      }
+    }
+
+    await ensureScriptInjected(tab.id)
+
+    const message: ExtensionMessage = {
+      id: `pick_${Date.now()}_${Math.random().toString(36).substring(2, 7)}`,
+      type: MESSAGE_TYPES.START_ELEMENT_PICKER,
+      timestamp: Date.now(),
+    }
+
+    const res = (await chrome.tabs.sendMessage(tab.id, message)) as ExtensionResponse<{
+      active: boolean
+    }>
+    return res
+  } catch (error: unknown) {
+    const msg = error instanceof Error ? error.message : String(error)
+    return {
+      success: false,
+      error: {
+        code: 'PICKER_ERROR',
+        message: msg,
+      },
+    }
+  }
+}
+
+/**
+ * Checks and clears any last element captured by the visual element picker.
+ */
+export async function checkLastPickedElement(): Promise<RawExtraction | null> {
+  try {
+    if (typeof chrome !== 'undefined' && chrome.storage?.local) {
+      const res = await chrome.storage.local.get('lastPickedElement')
+      if (res && res.lastPickedElement) {
+        // Clear after reading
+        await chrome.storage.local.remove('lastPickedElement')
+        return res.lastPickedElement as RawExtraction
+      }
+    }
+  } catch {
+    // Ignore error
+  }
+  return null
 }

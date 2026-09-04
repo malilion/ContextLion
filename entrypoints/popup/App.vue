@@ -12,10 +12,19 @@ import {
   ExternalLink,
   Check,
   RefreshCw,
+  Crosshair,
+  Layers,
+  Globe,
+  Sliders,
 } from 'lucide-vue-next'
 
-import type { PageContext } from '../../types/context'
-import { requestPageExtraction } from '../../lib/messages/client'
+import type { PageContext, RawExtraction } from '../../types/context'
+import {
+  requestPageExtraction,
+  requestSelectionExtraction,
+  requestStartElementPicker,
+  checkLastPickedElement,
+} from '../../lib/messages/client'
 import { buildPageContext, buildAiContextMarkdown } from '../../lib/context/context-builder'
 import { formatTokenEstimate } from '../../lib/context/token-estimator'
 import {
@@ -23,6 +32,12 @@ import {
   savePreferences,
   type UserPreferences,
 } from '../../lib/storage/preferences'
+import {
+  BUILTIN_PROMPT_PRESETS,
+  formatPromptContext,
+  type PromptPreset,
+} from '../../lib/context/prompt-presets'
+import { detectLanguage, type DetectedLanguage } from '../../lib/transformers/language-detector'
 
 // Components
 import Button from '../../components/ui/Button.vue'
@@ -36,10 +51,15 @@ import CodeBlock from '../../components/ui/CodeBlock.vue'
 
 // Reactive state
 type ViewState = 'loading' | 'success' | 'empty' | 'error' | 'permission_denied'
+type ExtractionMode = 'page' | 'selection' | 'picker'
+
 const state = ref<ViewState>('loading')
+const mode = ref<ExtractionMode>('page')
 const errorMessage = ref('')
 const errorCode = ref('')
 const pageContext = ref<PageContext | null>(null)
+const detectedLang = ref<DetectedLanguage | null>(null)
+const selectedPresetId = ref('none')
 
 // UI controls
 const showPreview = ref(false)
@@ -57,6 +77,24 @@ const preferences = ref<UserPreferences>({
   defaultCopyFormat: 'ai-context',
   includeImages: true,
   includeLinks: true,
+  defaultPromptPreset: 'none',
+  customPrompts: [],
+})
+
+// Combined presets
+const allPresets = computed<PromptPreset[]>(() => {
+  return [...BUILTIN_PROMPT_PRESETS, ...(preferences.value.customPrompts || [])]
+})
+
+const FALLBACK_PRESET: PromptPreset = {
+  id: 'none',
+  label: 'Standard Context',
+  description: 'Direct AI Context without task framing',
+  instruction: '',
+}
+
+const activePreset = computed<PromptPreset>(() => {
+  return allPresets.value.find((p) => p.id === selectedPresetId.value) || FALLBACK_PRESET
 })
 
 function showToast(message: string, type: 'success' | 'error' | 'info' = 'success') {
@@ -66,10 +104,10 @@ function showToast(message: string, type: 'success' | 'error' | 'info' = 'succes
   }, 2400)
 }
 
-// Full AI Context text
+// Full AI Context text (with prompt instructions applied if selected)
 const aiContextText = computed(() => {
   if (!pageContext.value) return ''
-  return buildAiContextMarkdown({
+  const baseAi = buildAiContextMarkdown({
     title: pageContext.value.title,
     url: pageContext.value.url,
     author: pageContext.value.author,
@@ -77,6 +115,8 @@ const aiContextText = computed(() => {
     capturedAt: pageContext.value.capturedAt,
     markdown: pageContext.value.markdown,
   })
+
+  return formatPromptContext(baseAi, activePreset.value.instruction)
 })
 
 // Active preview content
@@ -87,14 +127,30 @@ const previewContent = computed(() => {
   return pageContext.value.plainText
 })
 
-// Extraction flow
-async function performExtraction() {
+function handleExtractionResult(raw: RawExtraction) {
+  const context = buildPageContext(raw, {
+    includeImages: preferences.value.includeImages,
+    includeLinks: preferences.value.includeLinks,
+  })
+
+  if (!context.markdown.trim() && !context.plainText.trim()) {
+    state.value = 'empty'
+    return
+  }
+
+  pageContext.value = context
+  detectedLang.value = detectLanguage(context.markdown)
+  state.value = 'success'
+}
+
+// Full Page Extraction
+async function extractFullPage() {
+  mode.value = 'page'
   state.value = 'loading'
   errorMessage.value = ''
 
   try {
     const response = await requestPageExtraction()
-
     if (!response.success) {
       if (response.error.code === 'PERMISSION_DENIED') {
         state.value = 'permission_denied'
@@ -106,19 +162,7 @@ async function performExtraction() {
       return
     }
 
-    const raw = response.data
-    const context = buildPageContext(raw, {
-      includeImages: preferences.value.includeImages,
-      includeLinks: preferences.value.includeLinks,
-    })
-
-    if (!context.markdown.trim() && !context.plainText.trim()) {
-      state.value = 'empty'
-      return
-    }
-
-    pageContext.value = context
-    state.value = 'success'
+    handleExtractionResult(response.data)
   } catch (err: unknown) {
     state.value = 'error'
     errorCode.value = 'UNEXPECTED_ERROR'
@@ -126,7 +170,51 @@ async function performExtraction() {
   }
 }
 
-// Copy actions (performed safely in popup context)
+// Selection Extraction
+async function extractUserSelection() {
+  mode.value = 'selection'
+  state.value = 'loading'
+  errorMessage.value = ''
+
+  try {
+    const response = await requestSelectionExtraction()
+    if (!response.success) {
+      state.value = 'error'
+      errorCode.value = response.error.code
+      errorMessage.value = response.error.message
+      return
+    }
+
+    if (!response.data) {
+      state.value = 'empty'
+      errorMessage.value = 'No text selected on the active page. Highlight text and try again.'
+      return
+    }
+
+    handleExtractionResult(response.data)
+  } catch (err: unknown) {
+    state.value = 'error'
+    errorCode.value = 'SELECTION_ERROR'
+    errorMessage.value = err instanceof Error ? err.message : String(err)
+  }
+}
+
+// Interactive Element Picker
+async function triggerElementPicker() {
+  try {
+    const response = await requestStartElementPicker()
+    if (response.success && response.data.active) {
+      // Close popup so user can interact with the webpage
+      window.close()
+    } else {
+      showToast('Could not launch element picker on this page', 'error')
+    }
+  } catch {
+    showToast('Failed to trigger element picker', 'error')
+  }
+}
+
+// Copy actions
 async function copyToClipboard(text: string, label: string) {
   try {
     await navigator.clipboard.writeText(text)
@@ -138,7 +226,10 @@ async function copyToClipboard(text: string, label: string) {
 }
 
 function handleCopyAiContext() {
-  copyToClipboard(aiContextText.value, 'AI Context')
+  copyToClipboard(
+    aiContextText.value,
+    activePreset.value.id !== 'none' ? `${activePreset.value.label} Context` : 'AI Context'
+  )
 }
 
 function handleCopyMarkdown() {
@@ -153,7 +244,7 @@ function handleCopyPlainText() {
   }
 }
 
-// Download actions (executed in popup context via Blob and createObjectURL)
+// Download actions
 function sanitizeFilename(title: string, ext: string): string {
   const clean =
     title
@@ -196,21 +287,39 @@ function handleDownloadTxt() {
 async function updatePreference<K extends keyof UserPreferences>(key: K, val: UserPreferences[K]) {
   preferences.value[key] = val
   await savePreferences({ [key]: val })
-  // Re-run extraction if formatting options changed
   if (key === 'includeImages' || key === 'includeLinks') {
-    performExtraction()
+    if (mode.value === 'selection') extractUserSelection()
+    else extractFullPage()
+  }
+}
+
+function openOptionsPage() {
+  if (typeof chrome !== 'undefined' && chrome.runtime?.openOptionsPage) {
+    chrome.runtime.openOptionsPage()
   }
 }
 
 onMounted(async () => {
   preferences.value = await getPreferences()
-  await performExtraction()
+  if (preferences.value.defaultPromptPreset) {
+    selectedPresetId.value = preferences.value.defaultPromptPreset
+  }
+
+  // Check if an element was recently picked
+  const picked = await checkLastPickedElement()
+  if (picked) {
+    mode.value = 'picker'
+    handleExtractionResult(picked)
+    showToast('Loaded captured element!')
+  } else {
+    await extractFullPage()
+  }
 })
 </script>
 
 <template>
   <div
-    class="w-[380px] min-h-[460px] bg-gray-950 text-gray-100 flex flex-col justify-between select-none"
+    class="w-[380px] min-h-[490px] bg-gray-950 text-gray-100 flex flex-col justify-between select-none"
   >
     <!-- Header -->
     <header
@@ -224,7 +333,7 @@ onMounted(async () => {
         </div>
         <div class="flex items-center gap-1.5">
           <h1 class="text-sm font-bold tracking-tight text-white">ContextLion</h1>
-          <Badge variant="lion">v0.1</Badge>
+          <Badge variant="lion">v0.2</Badge>
         </div>
       </div>
 
@@ -232,7 +341,7 @@ onMounted(async () => {
         <IconButton
           v-if="state === 'success'"
           title="Refresh extraction"
-          @click="performExtraction"
+          @click="mode === 'selection' ? extractUserSelection() : extractFullPage()"
         >
           <RefreshCw class="w-4 h-4" />
         </IconButton>
@@ -245,17 +354,69 @@ onMounted(async () => {
       </div>
     </header>
 
-    <!-- Main Container -->
-    <main class="flex-1 p-4 flex flex-col justify-start gap-4">
+    <!-- Mode Selector Tabs (Full Page, Selection, Element Picker) -->
+    <div class="px-4 pt-3 pb-1">
+      <div
+        class="grid grid-cols-3 gap-1 bg-gray-900/80 p-1 rounded-xl border border-gray-800 text-xs"
+      >
+        <button
+          type="button"
+          class="py-1.5 px-2 rounded-lg font-medium transition-all text-center flex items-center justify-center gap-1.5"
+          :class="
+            mode === 'page'
+              ? 'bg-gray-800 text-white shadow-sm'
+              : 'text-gray-400 hover:text-gray-200'
+          "
+          @click="extractFullPage"
+        >
+          <Layers class="w-3.5 h-3.5 text-lion-400" />
+          <span>Page</span>
+        </button>
+
+        <button
+          type="button"
+          class="py-1.5 px-2 rounded-lg font-medium transition-all text-center flex items-center justify-center gap-1.5"
+          :class="
+            mode === 'selection'
+              ? 'bg-gray-800 text-white shadow-sm'
+              : 'text-gray-400 hover:text-gray-200'
+          "
+          @click="extractUserSelection"
+        >
+          <FileText class="w-3.5 h-3.5 text-amber-400" />
+          <span>Selection</span>
+        </button>
+
+        <button
+          type="button"
+          class="py-1.5 px-2 rounded-lg font-medium transition-all text-center flex items-center justify-center gap-1.5 text-gray-400 hover:text-gray-200"
+          title="Click to activate visual element picker on page"
+          @click="triggerElementPicker"
+        >
+          <Crosshair class="w-3.5 h-3.5 text-emerald-400" />
+          <span>Pick Element</span>
+        </button>
+      </div>
+    </div>
+
+    <!-- Main Content -->
+    <main class="flex-1 p-4 flex flex-col justify-start gap-3.5">
       <!-- Loading State -->
-      <LoadingState v-if="state === 'loading'" />
+      <LoadingState
+        v-if="state === 'loading'"
+        :title="
+          mode === 'selection'
+            ? 'Extracting highlighted selection...'
+            : 'Extracting page content...'
+        "
+      />
 
       <!-- Error State -->
       <ErrorState
         v-else-if="state === 'error'"
         :code="errorCode"
         :message="errorMessage"
-        @retry="performExtraction"
+        @retry="mode === 'selection' ? extractUserSelection() : extractFullPage()"
       />
 
       <!-- Permission Denied State -->
@@ -267,15 +428,38 @@ onMounted(async () => {
       />
 
       <!-- Empty State -->
-      <EmptyState v-else-if="state === 'empty'" @action="performExtraction" />
+      <EmptyState
+        v-else-if="state === 'empty'"
+        :title="mode === 'selection' ? 'No text selected' : 'No content found'"
+        :description="
+          mode === 'selection'
+            ? 'Highlight any text or paragraph on the page, then click Selection.'
+            : 'Could not detect readable article content on this page.'
+        "
+        :action-text="mode === 'selection' ? 'Extract Full Page Instead' : 'Retry Extraction'"
+        @action="extractFullPage"
+      />
 
       <!-- Success State -->
-      <div v-else-if="state === 'success' && pageContext" class="flex flex-col gap-3.5">
+      <div v-else-if="state === 'success' && pageContext" class="flex flex-col gap-3">
         <!-- Page Info Card -->
         <div class="p-3 bg-gray-900 border border-gray-800 rounded-xl space-y-1.5">
-          <div class="text-[11px] font-medium text-lion-400 uppercase tracking-wider">
-            Current Page
+          <div class="flex items-center justify-between">
+            <div class="text-[11px] font-medium text-lion-400 uppercase tracking-wider">
+              {{
+                mode === 'selection'
+                  ? 'Text Selection'
+                  : mode === 'picker'
+                    ? 'Captured Element'
+                    : 'Current Page'
+              }}
+            </div>
+            <div v-if="detectedLang" class="flex items-center gap-1 text-[11px] text-gray-400">
+              <Globe class="w-3 h-3 text-gray-500" />
+              <span>{{ detectedLang.name }}</span>
+            </div>
           </div>
+
           <h2 class="text-sm font-semibold text-gray-100 line-clamp-2 leading-snug">
             {{ pageContext.title }}
           </h2>
@@ -324,16 +508,42 @@ onMounted(async () => {
           </div>
         </div>
 
+        <!-- Prompt Preset Selector Dropdown -->
+        <div class="space-y-1">
+          <div
+            class="flex items-center justify-between text-[11px] font-semibold text-gray-400 uppercase tracking-wider px-0.5"
+          >
+            <span class="flex items-center gap-1">
+              <Sparkles class="w-3 h-3 text-lion-400" />
+              <span>Prompt Preset</span>
+            </span>
+            <span v-if="activePreset.id !== 'none'" class="text-lion-400 text-[10px] lowercase"
+              >task framed</span
+            >
+          </div>
+
+          <select
+            v-model="selectedPresetId"
+            class="w-full bg-gray-900 border border-gray-800 rounded-lg px-2.5 py-1.5 text-xs text-gray-200 focus:outline-none focus:ring-1 focus:ring-lion-400"
+          >
+            <option v-for="preset in allPresets" :key="preset.id" :value="preset.id">
+              {{ preset.label }}
+            </option>
+          </select>
+        </div>
+
         <!-- Primary Action Buttons -->
         <div class="space-y-2 pt-1">
           <Button variant="primary" size="md" block @click="handleCopyAiContext">
             <Sparkles class="w-4 h-4 shrink-0 text-gray-950" />
-            <span>Copy AI Context</span>
+            <span>{{
+              activePreset.id !== 'none' ? `Copy ${activePreset.label}` : 'Copy AI Context'
+            }}</span>
           </Button>
 
           <Button variant="secondary" size="md" block @click="handleCopyMarkdown">
             <Copy class="w-4 h-4 shrink-0 text-gray-400" />
-            <span>Copy Markdown</span>
+            <span>Copy Raw Markdown</span>
           </Button>
         </div>
 
@@ -378,7 +588,7 @@ onMounted(async () => {
           >
             <span class="flex items-center gap-1.5">
               <FileCode class="w-3.5 h-3.5" />
-              <span>Preview Content</span>
+              <span>Preview Output</span>
             </span>
             <ChevronUp v-if="showPreview" class="w-3.5 h-3.5" />
             <ChevronDown v-else class="w-3.5 h-3.5" />
@@ -396,7 +606,7 @@ onMounted(async () => {
                 "
                 @click="previewTab = 'ai'"
               >
-                AI Context
+                Framed Context
               </button>
               <button
                 type="button"
@@ -424,18 +634,28 @@ onMounted(async () => {
               </button>
             </div>
 
-            <CodeBlock :content="previewContent" max-height="160px" />
+            <CodeBlock :content="previewContent" max-height="150px" />
           </div>
         </div>
       </div>
 
-      <!-- Settings Drawer / Panel -->
+      <!-- Quick Settings Drawer -->
       <div
         v-if="showSettings"
         class="p-3 bg-gray-900 border border-gray-800 rounded-xl space-y-2.5 text-xs text-gray-300"
       >
-        <div class="font-semibold text-gray-100 pb-1 border-b border-gray-800">
-          Extraction Settings
+        <div
+          class="flex items-center justify-between font-semibold text-gray-100 pb-1 border-b border-gray-800"
+        >
+          <span>Extraction Settings</span>
+          <button
+            type="button"
+            class="text-lion-400 hover:underline flex items-center gap-1 font-normal text-[11px]"
+            @click="openOptionsPage"
+          >
+            <span>Full Settings</span>
+            <ExternalLink class="w-3 h-3" />
+          </button>
         </div>
 
         <label class="flex items-center justify-between cursor-pointer py-1">
@@ -465,7 +685,14 @@ onMounted(async () => {
       class="px-4 py-2 border-t border-gray-800/80 bg-gray-900/30 flex items-center justify-between text-[11px] text-gray-500"
     >
       <span>Local-first • No remote tracking</span>
-      <span class="text-gray-600">Malilion Tools</span>
+      <button
+        type="button"
+        class="text-gray-500 hover:text-gray-300 flex items-center gap-1"
+        @click="openOptionsPage"
+      >
+        <Sliders class="w-3 h-3" />
+        <span>Options</span>
+      </button>
     </footer>
 
     <!-- Toast Notification -->

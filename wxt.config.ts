@@ -5,7 +5,7 @@ export default defineConfig({
   manifest: {
     name: 'ContextLion',
     description: 'Turn any webpage into clean, structured, AI-ready context.',
-    version: '0.1.0',
+    version: '0.2.0',
     permissions: ['activeTab', 'scripting', 'storage'],
     action: {
       default_title: 'ContextLion',
