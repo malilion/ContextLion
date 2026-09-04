@@ -6,49 +6,25 @@ import { fileURLToPath } from 'url'
 const __dirname = path.dirname(fileURLToPath(import.meta.url))
 const rootDir = path.resolve(__dirname, '..')
 
-const svgPath = path.join(rootDir, 'public/icon.svg')
-const svgContent = fs.readFileSync(svgPath, 'utf-8')
+const logoPath = path.join(rootDir, 'public/logo.png')
+const logoBase64 = fs.readFileSync(logoPath).toString('base64')
+const logoSrc = `data:image/png;base64,${logoBase64}`
 
 fs.mkdirSync(path.join(rootDir, 'public'), { recursive: true })
 fs.mkdirSync(path.join(rootDir, 'assets/store'), { recursive: true })
 fs.mkdirSync(path.join(rootDir, 'assets/screenshots'), { recursive: true })
 
+// Copy icon-128 to assets/store/icon-128.png
+fs.copyFileSync(
+  path.join(rootDir, 'public/icon-128.png'),
+  path.join(rootDir, 'assets/store/icon-128.png')
+)
+
 async function generate() {
   const browser = await chromium.launch()
   const page = await browser.newPage()
 
-  // 1. Generate Extension Icons (16, 32, 48, 128)
-  const sizes = [16, 32, 48, 128]
-  for (const size of sizes) {
-    await page.setViewportSize({ width: size, height: size })
-    await page.setContent(`
-      <!DOCTYPE html>
-      <html>
-        <head>
-          <style>
-            * { margin: 0; padding: 0; box-sizing: border-box; }
-            body { width: ${size}px; height: ${size}px; overflow: hidden; background: transparent; }
-            svg { width: 100%; height: 100%; display: block; }
-          </style>
-        </head>
-        <body>
-          ${svgContent}
-        </body>
-      </html>
-    `)
-
-    const outPath = path.join(rootDir, `public/icon-${size}.png`)
-    await page.screenshot({ path: outPath, omitBackground: true })
-    console.log(`Generated: ${outPath}`)
-  }
-
-  // Copy 128 to assets/store/icon-128.png
-  fs.copyFileSync(
-    path.join(rootDir, 'public/icon-128.png'),
-    path.join(rootDir, 'assets/store/icon-128.png')
-  )
-
-  // 2. Generate Store Small Tile (440x280)
+  // 1. Generate Store Small Tile (440x280)
   await page.setViewportSize({ width: 440, height: 280 })
   await page.setContent(`
     <!DOCTYPE html>
@@ -69,11 +45,11 @@ async function generate() {
             overflow: hidden;
             position: relative;
           }
-          .icon-wrapper {
-            width: 96px;
-            height: 96px;
-            margin-bottom: 16px;
-            filter: drop-shadow(0 8px 24px rgba(245, 158, 11, 0.4));
+          .icon-wrapper img {
+            width: 110px;
+            height: 110px;
+            margin-bottom: 12px;
+            filter: drop-shadow(0 10px 25px rgba(245, 158, 11, 0.45));
           }
           h1 {
             font-size: 26px;
@@ -93,7 +69,7 @@ async function generate() {
       </head>
       <body>
         <div class="icon-wrapper">
-          ${svgContent}
+          <img src="${logoSrc}" alt="ContextLion" />
         </div>
         <h1>ContextLion</h1>
         <p>Turn any webpage into AI-ready Markdown</p>
@@ -104,7 +80,7 @@ async function generate() {
   await page.screenshot({ path: smallTilePath })
   console.log(`Generated: ${smallTilePath}`)
 
-  // 3. Generate Store Marquee Banner (1400x560)
+  // 2. Generate Store Marquee Banner (1400x560)
   await page.setViewportSize({ width: 1400, height: 560 })
   await page.setContent(`
     <!DOCTYPE html>
@@ -115,7 +91,7 @@ async function generate() {
           body {
             width: 1400px;
             height: 560px;
-            background: radial-gradient(circle at 70% 30%, #1e1b4b 0%, #090d16 80%);
+            background: radial-gradient(circle at 75% 35%, #1e1b4b 0%, #090d16 80%);
             display: flex;
             align-items: center;
             justify-content: space-between;
@@ -141,7 +117,7 @@ async function generate() {
             letter-spacing: 1px;
           }
           h1 {
-            font-size: 56px;
+            font-size: 54px;
             font-weight: 900;
             line-height: 1.1;
             margin-bottom: 16px;
@@ -169,10 +145,10 @@ async function generate() {
             color: #cbd5e1;
             font-weight: 600;
           }
-          .right {
-            width: 260px;
-            height: 260px;
-            filter: drop-shadow(0 20px 50px rgba(245, 158, 11, 0.35));
+          .right img {
+            width: 320px;
+            height: 320px;
+            filter: drop-shadow(0 25px 60px rgba(245, 158, 11, 0.4));
           }
         </style>
       </head>
@@ -180,16 +156,16 @@ async function generate() {
         <div class="left">
           <div class="badge">Local-First • Manifest V3</div>
           <h1>Turn any webpage into AI-ready Context.</h1>
-          <p>Extracts articles cleanly, removes noise & ads, converts to GFM Markdown with CJK-aware token estimation.</p>
+          <p>Extract articles cleanly, remove noise & ads, convert to GFM Markdown with CJK-aware token estimation.</p>
           <div class="pills">
             <div class="pill">⚡ One-Click Copy</div>
-            <div class="pill">🧹 Noise Cleaner</div>
-            <div class="pill">📊 Token Estimator</div>
+            <div class="pill">🎯 Element Picker</div>
+            <div class="pill">✨ Prompt Presets</div>
             <div class="pill">🔒 Zero Telemetry</div>
           </div>
         </div>
         <div class="right">
-          ${svgContent}
+          <img src="${logoSrc}" alt="ContextLion" />
         </div>
       </body>
     </html>
