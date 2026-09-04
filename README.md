@@ -13,6 +13,10 @@ ContextLion is an open-source browser extension built for developers, researcher
 Web Article → ContextLion → Clean Markdown → ChatGPT / Claude / Gemini / Codex
 ```
 
+<p align="center">
+  <img src="assets/screenshots/popup-demo.png" alt="ContextLion Popup Interface" width="400" />
+</p>
+
 ---
 
 ## ✨ Features (v0.1.0 MVP)

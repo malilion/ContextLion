@@ -17,6 +17,7 @@
     "test": "vitest run",
     "test:watch": "vitest",
     "test:e2e": "playwright test",
+    "assets:generate": "node scripts/generate-assets.mjs && node scripts/generate-screenshot.mjs",
     "postinstall": "wxt prepare"
   },
   "dependencies": {
