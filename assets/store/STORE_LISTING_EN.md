@@ -130,7 +130,7 @@ Provide the exact justification for each declared permission in `manifest.json`:
 
 ### 4. Privacy Policy URL
 ```text
-https://github.com/malilion/context-lion/blob/main/PRIVACY.md
+https://github.com/malilion/ContextLion/blob/main/PRIVACY.md
 ```
 
 ---
