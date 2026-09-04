@@ -89,12 +89,18 @@ async function ensureScriptInjected(tabId: number): Promise<void> {
 }
 
 /**
- * Requests full page content extraction from the active tab.
+ * Requests full page content extraction from a specific tab ID.
  */
-export async function requestPageExtraction(): Promise<ExtensionResponse<RawExtraction>> {
+export async function requestTabExtraction(
+  tabId: number
+): Promise<ExtensionResponse<RawExtraction>> {
   try {
-    const tab = await getActiveTab()
-    const check = isExtractableUrl(tab.url)
+    if (typeof chrome === 'undefined' || !chrome.tabs) {
+      throw new Error('Chrome extension APIs are not available.')
+    }
+
+    const tab = await chrome.tabs.get(tabId)
+    const check = isExtractableUrl(tab.url || '')
     if (!check.ok) {
       return {
         success: false,
@@ -105,7 +111,7 @@ export async function requestPageExtraction(): Promise<ExtensionResponse<RawExtr
       }
     }
 
-    await ensureScriptInjected(tab.id)
+    await ensureScriptInjected(tabId)
 
     const message: ExtensionMessage = {
       id: `msg_${Date.now()}_${Math.random().toString(36).substring(2, 7)}`,
@@ -113,7 +119,7 @@ export async function requestPageExtraction(): Promise<ExtensionResponse<RawExtr
       timestamp: Date.now(),
     }
 
-    const res = (await chrome.tabs.sendMessage(tab.id, message)) as ExtensionResponse<RawExtraction>
+    const res = (await chrome.tabs.sendMessage(tabId, message)) as ExtensionResponse<RawExtraction>
     if (res) return res
 
     return {
@@ -123,6 +129,25 @@ export async function requestPageExtraction(): Promise<ExtensionResponse<RawExtr
         message: 'The page extractor did not return any extraction data.',
       },
     }
+  } catch (error: unknown) {
+    const msg = error instanceof Error ? error.message : String(error)
+    return {
+      success: false,
+      error: {
+        code: 'UNKNOWN_ERROR',
+        message: msg,
+      },
+    }
+  }
+}
+
+/**
+ * Requests full page content extraction from the active tab.
+ */
+export async function requestPageExtraction(): Promise<ExtensionResponse<RawExtraction>> {
+  try {
+    const tab = await getActiveTab()
+    return await requestTabExtraction(tab.id)
   } catch (error: unknown) {
     const msg = error instanceof Error ? error.message : String(error)
     return {

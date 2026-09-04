@@ -19,64 +19,39 @@ Web Article → ContextLion → Clean Markdown → ChatGPT / Claude / Gemini / C
 
 ---
 
-## ✨ Features (v0.1.0 MVP)
+## ✨ Features (v1.0.0)
 
 - **Smart Content Extraction**: Powered by Mozilla Readability on a cloned DOM tree (`document.cloneNode(true)`) to safely extract main article content without disturbing page runtime.
-- **Noise & Clutter Removal**: Aggressively strips scripts, stylesheets, tracking beacons, navigation headers, footers, and advertisement widgets.
+- **Multiple Capture Modes**:
+  - **Full Page**: High-fidelity article extraction.
+  - **Selection Capture**: Highlight any passage or code snippet on the page and extract directly into Markdown.
+  - **Visual Element Picker**: Hover and visually click any targeted block on the page to extract local components.
+  - **📦 Context Pack (Multi-Tab Consolidation)**: Select tabs in your current window (grouped by domain) and bundle them into a single consolidated, AI-ready Markdown document.
+- **URL Normalization & Deduplication**: Strips tracking parameters (`utm_*`, `fbclid`, `gclid`, etc.) and canonicalizes URLs to prevent duplicate extractions across multiple tabs.
+- **Fault-Tolerant Batch Extraction**: Progress bar updates in real-time. If an individual tab fails or closes, extraction records an error placeholder and continues without halting the batch.
+- **Structured ZIP Export**: Export entire Context Packs into a clean ZIP archive containing `README.md`, `all-sources-combined.md`, and individual numbered source files (`sources/01-Title.md`).
+- **Context History & Collections**: Local-first history drawer in popup and options page with favorite/bookmarking, instant re-copy, and selective clearing.
+- **Prompt Presets Engine**: 8 built-in prompt task framings (_Summarize, Explain, Technical Analysis, Create Notes, Code Review, Research Context_, etc.) plus custom prompt creation.
+- **Heading Normalization**: Proportionally normalizes document heading hierarchy so `#` remains reserved for the title, while fenced code blocks are strictly preserved.
 - **High-Fidelity Markdown Transformation**:
-  - Preserves headings, blockquotes, ordered/unordered lists, and links.
   - Retains syntax language tags on fenced code blocks (`pre > code.language-*`).
   - Converts tables to GitHub Flavored Markdown (GFM) tables.
-- **Token Estimation Heuristics**: CJK-aware token estimator (~1.2 tokens/char for CJK, ~4 chars/token for Latin text) displayed alongside word and character counts.
-- **Multiple Export Options**:
-  - **Copy AI Context**: Includes rich YAML-like metadata header (Title, Source URL, Author, Published Date, Captured Timestamp).
-  - **Copy Markdown**: Raw converted Markdown text.
-  - **Copy Plain Text**: Clean stripped plain text.
-  - **Download .md / .txt**: Directly downloads files in your browser.
+  - Preserves links and images with alt text.
+- **CJK-Aware Token Estimator**: Smart token estimation (~1.2 tokens/char for CJK, ~4 chars/token for Latin) displayed alongside word counts.
 - **Local-First & Zero Telemetry**: 100% of processing happens in your browser. No remote servers, no analytics, no external APIs.
-
----
-
-## 📐 Popup UI
-
-Designed with a clean, dark-mode-first aesthetic fitted within a standard 380px popup:
-
-```text
-┌──────────────────────────────────────┐
-│ 🦁 ContextLion                [v0.1] │
-│                                      │
-│ CURRENT PAGE                         │
-│ WXT Documentation                    │
-│ https://wxt.dev                      │
-│ By WXT Team • 2026-09-04             │
-│                                      │
-│ ┌─────────────────┬────────────────┐ │
-│ │ Words: 3,241    │ Tokens: ~4,300 │ │
-│ └─────────────────┴────────────────┘ │
-│                                      │
-│ [ ✨ Copy AI Context               ] │
-│ [ 📋 Copy Markdown                 ] │
-│                                      │
-│ [Plain Text]        [.md]     [.txt] │
-│                                      │
-│ > Preview Content                    │
-│ > Extraction Settings                │
-│                                      │
-│ Local-first • No remote tracking     │
-└──────────────────────────────────────┘
-```
 
 ---
 
 ## 🔒 Permissions & Security
 
-ContextLion strictly follows the **Principle of Least Privilege** and Chrome Web Store's Single Purpose Policy. It requires only:
+ContextLion strictly follows the **Principle of Least Privilege** and Chrome Web Store's Single Purpose Policy:
 
 | Permission  | Justification                                                                                               |
 | ----------- | ----------------------------------------------------------------------------------------------------------- |
 | `activeTab` | Grants temporary access to the current tab only when you explicitly open the popup. No background snooping. |
-| `scripting` | Allows programmatic injection of the extractor script into the active tab upon user request.                |
-| `storage`   | Stores user interface preferences locally via `chrome.storage.sync`.                                        |
+| `tabs`      | Queries open tabs in the current window to display domain groupings and perform Context Pack extraction.    |
+| `scripting` | Allows programmatic injection of the extractor script into selected tabs upon user request.                 |
+| `storage`   | Stores user preferences via `storage.sync` and local context history via `storage.local`.                   |
 
 > **No `<all_urls>` permission requested.** ContextLion cannot read pages in the background without explicit user interaction.
 
