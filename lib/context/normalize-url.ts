@@ -31,7 +31,7 @@ export function normalizeUrl(rawUrl: string): string {
 
     // Filter out tracking query params
     const cleanParams = new URLSearchParams()
-    const sortedKeys = Array.from(parsed.searchParams.keys()).sort()
+    const sortedKeys = Array.from(new Set(parsed.searchParams.keys())).sort()
 
     for (const key of sortedKeys) {
       const isTracking = TRACKING_PARAM_PATTERNS.some((p) => p.test(key))

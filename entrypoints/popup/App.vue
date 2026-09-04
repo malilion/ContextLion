@@ -461,7 +461,7 @@ function downloadFile(blob: Blob, filename: string) {
     document.body.appendChild(a)
     a.click()
     document.body.removeChild(a)
-    URL.revokeObjectURL(url)
+    setTimeout(() => URL.revokeObjectURL(url), 2000)
     showToast(`Saved ${filename}`, 'success')
   } catch (err) {
     console.error('Download failed:', err)
@@ -1327,7 +1327,7 @@ onMounted(async () => {
                 {{ item.itemCount || 1 }} sources
               </span>
               <span>•</span>
-              <span>~{{ formatTokenEstimate(item.estimatedTokens) }} tokens</span>
+              <span>{{ formatTokenEstimate(item.estimatedTokens) }} tokens</span>
             </div>
           </div>
         </div>

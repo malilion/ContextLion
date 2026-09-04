@@ -65,24 +65,69 @@ export function isExtractableUrl(url: string): { ok: boolean; reason?: string } 
 }
 
 /**
- * Ensures extractor script is injected into the active tab.
+ * Sends a message to a tab with an enforced timeout.
+ */
+export async function sendMessageWithTimeout<T>(
+  tabId: number,
+  message: unknown,
+  timeoutMs = 12000
+): Promise<T> {
+  let timer: ReturnType<typeof setTimeout>
+  const timeoutPromise = new Promise<never>((_, reject) => {
+    timer = setTimeout(() => {
+      reject(new Error(`Extraction timed out after ${timeoutMs}ms`))
+    }, timeoutMs)
+  })
+
+  try {
+    return await Promise.race([
+      chrome.tabs.sendMessage(tabId, message) as Promise<T>,
+      timeoutPromise,
+    ])
+  } finally {
+    clearTimeout(timer!)
+  }
+}
+
+/**
+ * Ensures extractor script is injected into the target tab.
+ * Supports Chrome MV3 (chrome.scripting) and Firefox MV2 (chrome.tabs.executeScript).
  */
 async function ensureScriptInjected(tabId: number): Promise<void> {
   try {
-    const pingRes = (await chrome.tabs.sendMessage(tabId, {
-      id: `ping_${Date.now()}`,
-      type: MESSAGE_TYPES.PING,
-      timestamp: Date.now(),
-    })) as ExtensionResponse<{ pong: boolean }>
+    const pingRes = await sendMessageWithTimeout<ExtensionResponse<{ pong: boolean }>>(
+      tabId,
+      {
+        id: `ping_${Date.now()}`,
+        type: MESSAGE_TYPES.PING,
+        timestamp: Date.now(),
+      },
+      800
+    )
     if (pingRes && pingRes.success) return
   } catch {
     // Need injection
   }
 
-  await chrome.scripting.executeScript({
-    target: { tabId },
-    files: ['extractor.js'],
-  })
+  if (typeof chrome.scripting !== 'undefined' && chrome.scripting.executeScript) {
+    await chrome.scripting.executeScript({
+      target: { tabId },
+      files: ['extractor.js'],
+    })
+  } else if (
+    typeof chrome.tabs !== 'undefined' &&
+    typeof (chrome.tabs as { executeScript?: Function }).executeScript === 'function'
+  ) {
+    await (
+      chrome.tabs as unknown as {
+        executeScript: (tabId: number, details: { file: string }) => Promise<unknown>
+      }
+    ).executeScript(tabId, {
+      file: 'extractor.js',
+    })
+  } else {
+    throw new Error('Script execution API is unavailable.')
+  }
 
   // Brief pause for script initialization
   await new Promise((resolve) => setTimeout(resolve, 80))
@@ -119,7 +164,11 @@ export async function requestTabExtraction(
       timestamp: Date.now(),
     }
 
-    const res = (await chrome.tabs.sendMessage(tabId, message)) as ExtensionResponse<RawExtraction>
+    const res = await sendMessageWithTimeout<ExtensionResponse<RawExtraction>>(
+      tabId,
+      message,
+      12000
+    )
     if (res) return res
 
     return {

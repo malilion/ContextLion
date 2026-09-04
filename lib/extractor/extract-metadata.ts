@@ -1,5 +1,21 @@
 import type { PageMetadata } from '../../types/context'
 
+function sanitizeHttpUrl(rawUrl?: string | null, baseUrl?: string | null): string {
+  if (!rawUrl || !rawUrl.trim()) return ''
+  try {
+    const base = baseUrl && (baseUrl.startsWith('http://') || baseUrl.startsWith('https://'))
+      ? baseUrl
+      : undefined
+    const parsed = new URL(rawUrl.trim(), base)
+    if (parsed.protocol === 'http:' || parsed.protocol === 'https:') {
+      return parsed.href
+    }
+  } catch {
+    // Ignore URL parse error
+  }
+  return ''
+}
+
 /**
  * Extracts metadata (title, url, description, author, publish date) from a DOM Document.
  * Looks into OpenGraph, Twitter Cards, standard meta tags, canonical links, and JSON-LD.
@@ -25,14 +41,22 @@ export function extractMetadata(doc: Document, fallbackUrl?: string): PageMetada
     doc.querySelector('h1')?.textContent?.trim() ||
     'Untitled'
 
-  // 2. URL
+  // 2. URL (strictly sanitized to http/https protocols)
+  const fallback =
+    fallbackUrl !== undefined
+      ? fallbackUrl
+      : typeof window !== 'undefined'
+        ? window.location?.href
+        : ''
+  const baseHref = fallback || doc.baseURI
+  const ogUrl = getMeta('meta[property="og:url"]')
   const canonicalEl = doc.querySelector('link[rel="canonical"]')
   const canonicalUrl = canonicalEl?.getAttribute('href')
+
   const url =
-    getMeta('meta[property="og:url"]') ||
-    canonicalUrl ||
-    fallbackUrl ||
-    (typeof window !== 'undefined' ? window.location?.href : '') ||
+    sanitizeHttpUrl(ogUrl, baseHref) ||
+    sanitizeHttpUrl(canonicalUrl, baseHref) ||
+    sanitizeHttpUrl(fallback) ||
     ''
 
   // 3. Description
