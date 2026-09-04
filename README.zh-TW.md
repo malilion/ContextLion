@@ -4,7 +4,7 @@
 
 [English](README.md) | [繁體中文](README.zh-TW.md)
 
-[![CI](https://github.com/malilion/context-lion/actions/workflows/ci.yml/badge.svg)](https://github.com/malilion/context-lion/actions/workflows/ci.yml)
+
 [![License: MIT](https://img.shields.io/badge/License-MIT-amber.svg)](https://opensource.org/licenses/MIT)
 [![Manifest V3](https://img.shields.io/badge/Manifest-V3-blue.svg)](https://developer.chrome.com/docs/extensions/mv3/intro/)
 [![WXT](https://img.shields.io/badge/Framework-WXT%200.21.4-purple.svg)](https://wxt.dev/)
