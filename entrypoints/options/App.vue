@@ -111,11 +111,7 @@ onMounted(async () => {
       <!-- Header -->
       <div class="flex items-center justify-between pb-6 border-b border-gray-800">
         <div class="flex items-center gap-3">
-          <div
-            class="w-10 h-10 rounded-xl bg-lion-500 flex items-center justify-center text-gray-950 font-black text-xl shadow-md"
-          >
-            🦁
-          </div>
+          <img src="/icon-48.png" class="w-10 h-10 rounded-xl shadow-md" alt="ContextLion" />
           <div>
             <div class="flex items-center gap-2">
               <h1 class="text-xl font-bold text-white tracking-tight">ContextLion Settings</h1>

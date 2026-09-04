@@ -326,11 +326,7 @@ onMounted(async () => {
       class="flex items-center justify-between px-4 py-3 border-b border-gray-800 bg-gray-900/50"
     >
       <div class="flex items-center gap-2">
-        <div
-          class="w-6 h-6 rounded-md bg-lion-500 flex items-center justify-center text-gray-950 font-black text-xs shadow-sm"
-        >
-          🦁
-        </div>
+        <img src="/icon-32.png" class="w-6 h-6 rounded-md shadow-sm" alt="ContextLion" />
         <div class="flex items-center gap-1.5">
           <h1 class="text-sm font-bold tracking-tight text-white">ContextLion</h1>
           <Badge variant="lion">v0.2</Badge>
