@@ -9,6 +9,8 @@ const RESTRICTED_SCHEMES = [
   'devtools:',
   'view-source:',
   'chrome-untrusted:',
+  'data:',
+  'javascript:',
 ]
 
 export interface ActiveTabInfo {

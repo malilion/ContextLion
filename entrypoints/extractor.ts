@@ -12,11 +12,16 @@ export default defineUnlistedScript(() => {
   chrome.runtime.onMessage.addListener(
     (
       message: ExtensionMessage,
-      _sender: chrome.runtime.MessageSender,
+      sender: chrome.runtime.MessageSender,
       sendResponse: (
         response: ExtensionResponse<RawExtraction | { pong: boolean } | { active: boolean } | null>
       ) => void
     ): boolean => {
+      // Security defense-in-depth: Verify sender is our own extension
+      if (sender.id && sender.id !== chrome.runtime.id) {
+        return false
+      }
+
       // 1. Full Page Extraction
       if (message && message.type === MESSAGE_TYPES.EXTRACT_PAGE) {
         try {
