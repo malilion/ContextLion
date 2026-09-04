@@ -1,0 +1,27 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <title>TypeScript and Node.js Patterns</title>
+    <meta name="description" content="Code examples for asynchronous message passing." />
+  </head>
+  <body>
+    <div id="cookie-banner">Please accept all cookies</div>
+    <main>
+      <h1>TypeScript and Node.js Patterns</h1>
+      <p>Here is an example implementation of a typed event bus:</p>
+      <pre><code class="language-typescript">interface Message&lt;T&gt; {
+  id: string;
+  payload: T;
+}
+
+export function dispatch&lt;T&gt;(msg: Message&lt;T&gt;): void {
+  console.log('Dispatched:', msg.id);
+}</code></pre>
+      <p>And here is standard Python configuration code:</p>
+      <pre><code class="language-python">def calculate_tokens(text: str) -> int:
+    return len(text) // 4</code></pre>
+    </main>
+    <aside>Related articles</aside>
+  </body>
+</html>
