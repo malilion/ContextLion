@@ -20,7 +20,7 @@ export function buildContextPackMarkdown(
 
   lines.push(`Sources: ${pack.successfulSources} of ${pack.totalSources} captured`)
   lines.push(`Captured: ${capturedDateStr}`)
-  lines.push(`Total Estimated Tokens: ~${formatTokenEstimate(pack.totalTokens)}`)
+  lines.push(`Total Estimated Tokens: ${formatTokenEstimate(pack.totalTokens)}`)
   lines.push('')
 
   // Sources

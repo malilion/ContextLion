@@ -5,8 +5,12 @@ export default defineConfig({
   manifest: {
     name: 'ContextLion',
     description: 'Turn any webpage into clean, structured, AI-ready context.',
-    version: '1.0.0',
-    permissions: ['activeTab', 'scripting', 'storage', 'tabs'],
+    permissions: ['activeTab', 'scripting', 'storage', 'tabs', 'unlimitedStorage'],
+    browser_specific_settings: {
+      gecko: {
+        id: 'contextlion@malilion.dev',
+      },
+    },
     action: {
       default_title: 'ContextLion',
       default_icon: {

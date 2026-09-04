@@ -92,23 +92,24 @@ export function startElementPicker(onPicked?: (extraction: RawExtraction) => voi
     updateOverlay(target)
   }
 
+  function handleScroll() {
+    if (currentTarget) {
+      updateOverlay(currentTarget)
+    }
+  }
+
   function cleanup() {
     isPickerActive = false
     window.removeEventListener('mousemove', handleMouseMove, true)
     window.removeEventListener('click', handleClick, true)
     window.removeEventListener('keydown', handleKeyDown, true)
+    window.removeEventListener('scroll', handleScroll, true)
     overlay?.remove()
     banner?.remove()
   }
 
   function showCapturedToast(title: string) {
     const toast = document.createElement('div')
-    toast.innerHTML = `
-      <div style="display: flex; align-items: center; gap: 8px;">
-        <span style="color: #34d399; font-weight: bold;">✓</span>
-        <span>Element captured! (${title.slice(0, 30)})</span>
-      </div>
-    `
     toast.setAttribute(
       'style',
       `
@@ -129,6 +130,24 @@ export function startElementPicker(onPicked?: (extraction: RawExtraction) => voi
       transition: opacity 0.3s ease;
     `
     )
+
+    const wrapper = document.createElement('div')
+    wrapper.style.display = 'flex'
+    wrapper.style.alignItems = 'center'
+    wrapper.style.gap = '8px'
+
+    const checkIcon = document.createElement('span')
+    checkIcon.style.color = '#34d399'
+    checkIcon.style.fontWeight = 'bold'
+    checkIcon.textContent = '✓'
+
+    const textSpan = document.createElement('span')
+    textSpan.textContent = `Element captured! (${title.slice(0, 30)})`
+
+    wrapper.appendChild(checkIcon)
+    wrapper.appendChild(textSpan)
+    toast.appendChild(wrapper)
+
     document.body.appendChild(toast)
     setTimeout(() => {
       toast.style.opacity = '0'
@@ -137,12 +156,18 @@ export function startElementPicker(onPicked?: (extraction: RawExtraction) => voi
   }
 
   function handleClick(e: MouseEvent) {
+    const target = e.target as HTMLElement | null
+    if (target === banner || banner?.contains(target)) {
+      return
+    }
     if (!currentTarget) return
     e.preventDefault()
     e.stopPropagation()
 
-    // Clone element
+    // Clone element and strip picker UI if present
     const clonedEl = currentTarget.cloneNode(true) as HTMLElement
+    clonedEl.querySelector(`#${OVERLAY_ID}`)?.remove()
+    clonedEl.querySelector(`#${BANNER_ID}`)?.remove()
     cleanDom(clonedEl)
 
     const rawHtml = clonedEl.innerHTML.trim()
@@ -221,6 +246,7 @@ export function startElementPicker(onPicked?: (extraction: RawExtraction) => voi
   window.addEventListener('mousemove', handleMouseMove, true)
   window.addEventListener('click', handleClick, true)
   window.addEventListener('keydown', handleKeyDown, true)
+  window.addEventListener('scroll', handleScroll, true)
 
   return true
 }

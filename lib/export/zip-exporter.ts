@@ -189,29 +189,26 @@ export function exportContextPackToZip(pack: ContextPack): Blob {
     const safeTitle = sanitizePath(src.title).slice(0, 40)
     const filename = `sources/${padIdx}-${safeTitle}.md`
 
-    const sourceContent = [
-      `# ${src.title || 'Untitled'}`,
-      '',
-      src.url ? `Source: ${src.url}` : '',
-      src.author ? `Author: ${src.author}` : '',
-      src.publishedAt ? `Published: ${src.publishedAt}` : '',
-      `Status: ${src.status}`,
-      '',
-      '---',
-      '',
-      src.status === 'success' ? src.markdown : `Extraction failed: ${src.errorMessage}`,
-    ]
-      .filter(Boolean)
-      .join('\n')
+    const lines: string[] = [`# ${src.title || 'Untitled'}`, '']
+    if (src.url) lines.push(`Source: ${src.url}`)
+    if (src.author) lines.push(`Author: ${src.author}`)
+    if (src.publishedAt) lines.push(`Published: ${src.publishedAt}`)
+    lines.push(`Status: ${src.status}`)
+    lines.push('', '---', '')
+    lines.push(
+      src.status === 'success'
+        ? src.markdown
+        : `Extraction failed: ${src.errorMessage || 'Unable to read content'}`
+    )
 
     files.push({
       name: filename,
-      content: sourceContent,
+      content: lines.join('\n'),
     })
 
     idx++
   }
 
   const zipBytes = buildZipArchive(files)
-  return new Blob([zipBytes.buffer as ArrayBuffer], { type: 'application/zip' })
+  return new Blob([zipBytes as unknown as BlobPart], { type: 'application/zip' })
 }

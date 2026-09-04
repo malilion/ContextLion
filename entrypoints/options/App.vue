@@ -522,7 +522,7 @@ onMounted(async () => {
                   <span>•</span>
                   <span>{{ record.wordCount.toLocaleString() }} words</span>
                   <span>•</span>
-                  <span>~{{ formatTokenEstimate(record.estimatedTokens) }} tokens</span>
+                  <span>{{ formatTokenEstimate(record.estimatedTokens) }} tokens</span>
                   <span v-if="record.url" class="truncate max-w-[200px] text-gray-600">
                     {{ record.url }}
                   </span>
