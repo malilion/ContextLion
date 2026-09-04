@@ -3,9 +3,10 @@ import type { PageMetadata } from '../../types/context'
 function sanitizeHttpUrl(rawUrl?: string | null, baseUrl?: string | null): string {
   if (!rawUrl || !rawUrl.trim()) return ''
   try {
-    const base = baseUrl && (baseUrl.startsWith('http://') || baseUrl.startsWith('https://'))
-      ? baseUrl
-      : undefined
+    const base =
+      baseUrl && (baseUrl.startsWith('http://') || baseUrl.startsWith('https://'))
+        ? baseUrl
+        : undefined
     const parsed = new URL(rawUrl.trim(), base)
     if (parsed.protocol === 'http:' || parsed.protocol === 'https:') {
       return parsed.href

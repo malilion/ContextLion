@@ -31,13 +31,13 @@
 
 When using **Claude, ChatGPT, Gemini, DeepSeek**, or **Cursor**, developers and researchers frequently feed web pages, API docs, and articles to LLMs as context.
 
-| ❌ The Pain of Manual Copy-Pasting | ✅ The Seamless ContextLion Experience |
-| :--- | :--- |
-| Loaded with **cookie popups, banner ads, navigation bars, and footers** | **Surgically extracts core content** and removes all clutter automatically |
-| Heavy Base64-encoded images eat up tens of thousands of tokens | **Strips Base64 data URLs**, protecting your context window and token budget |
-| Clutter triggers the "Lost in the Middle" syndrome, degrading LLM output | **Clean GitHub Flavored Markdown (GFM)** with normalized heading hierarchy |
-| Repeatedly typing "Please summarize this..." for every prompt | **Built-in Prompt Presets** (TL;DR, Key Takeaways, Code Specs, Translation) |
-| Guessing token size and risking context overflow errors | **CJK-Aware Token Estimator** showing real-time token and size metrics |
+| ❌ The Pain of Manual Copy-Pasting                                       | ✅ The Seamless ContextLion Experience                                       |
+| :----------------------------------------------------------------------- | :--------------------------------------------------------------------------- |
+| Loaded with **cookie popups, banner ads, navigation bars, and footers**  | **Surgically extracts core content** and removes all clutter automatically   |
+| Heavy Base64-encoded images eat up tens of thousands of tokens           | **Strips Base64 data URLs**, protecting your context window and token budget |
+| Clutter triggers the "Lost in the Middle" syndrome, degrading LLM output | **Clean GitHub Flavored Markdown (GFM)** with normalized heading hierarchy   |
+| Repeatedly typing "Please summarize this..." for every prompt            | **Built-in Prompt Presets** (TL;DR, Key Takeaways, Code Specs, Translation)  |
+| Guessing token size and risking context overflow errors                  | **CJK-Aware Token Estimator** showing real-time token and size metrics       |
 
 ```text
 Web Article / Documentation ➔ ContextLion Auto-Cleaner ➔ Pristine Markdown + AI Prompt ➔ Ready for Claude / ChatGPT
@@ -56,6 +56,7 @@ Web Article / Documentation ➔ ContextLion Auto-Cleaner ➔ Pristine Markdown +
 ## 📸 Key Features & Visual Walkthrough
 
 ### 1. ⚡ One-Click Web-to-Markdown Context
+
 Converts the active webpage into structured GitHub Flavored Markdown, preserving code blocks with language tags, tables, and blockquotes while showing real-time token metrics.
 
 ![One-Click Web-to-Markdown Context](assets/store/screenshots/screenshot-1-overview.png)
@@ -63,7 +64,9 @@ Converts the active webpage into structured GitHub Flavored Markdown, preserving
 ---
 
 ### 2. ✨ Built-in AI Prompt Presets
+
 Wrap your context with proven, high-performing prompts without re-typing instructions:
+
 - ⚡ **Executive Summary (TL;DR)**: Concise overview with critical takeaways.
 - 🎯 **Key Action Items**: Extract actionable decisions and to-do lists.
 - 👶 **Explain Like I'm 5 (ELIF)**: Demystify complex jargon into simple terms.
@@ -76,6 +79,7 @@ Wrap your context with proven, high-performing prompts without re-typing instruc
 ---
 
 ### 3. 🎯 Precision Visual Element Picker
+
 Only need a specific benchmark table, code snippet, or forum response?
 Activate the visual picker, hover over any element to see the golden highlight box, and click to extract only that section—completely bypassing the rest of the page!
 
@@ -84,7 +88,9 @@ Activate the visual picker, hover over any element to see the golden highlight b
 ---
 
 ### 4. 📦 Multi-Tab Context Pack & Batch ZIP Export
+
 Deep research often spans dozens of open tabs. ContextLion groups open tabs by domain:
+
 - **Aggregated Token Counter**: Check your selected tabs and view combined token counts in real time.
 - **Combined Context Copy**: Merge multiple articles into a single, cohesive AI prompt context.
 - **Structured ZIP Export**: Client-side ZIP archive generation containing `README.md`, `all-sources-combined.md`, and individual source files.
@@ -94,6 +100,7 @@ Deep research often spans dozens of open tabs. ContextLion groups open tabs by d
 ---
 
 ### 5. 🔒 100% Local-First & Rich Settings
+
 - **100% Client-Side**: All DOM parsing, Markdown transformation, and token counting occur entirely inside your browser.
 - **Zero Telemetry**: No backend servers, no analytics, no external APIs.
 - **Rich Customization**: Heading level auto-normalization, Base64 image stripping, URL tracking parameter sanitization (`utm_*`, `fbclid`), and token ratio tuning.
@@ -114,13 +121,13 @@ Deep research often spans dozens of open tabs. ContextLion groups open tabs by d
 
 ContextLion strictly follows the **Principle of Least Privilege**:
 
-| Permission | Purpose |
-| :--- | :--- |
-| `activeTab` | Grants access to the active webpage **only upon explicit user interaction**. Never runs in the background. |
-| `scripting` | Injects the local content extractor script into the active page upon user request. |
-| `storage` | Stores preferences and local history records directly on your computer. |
-| `unlimitedStorage` | Ensures your local history is preserved without being pruned by default 5MB browser quotas. |
-| `tabs` | Used solely during "Context Pack" multi-tab bundling to read open tab titles and URLs. |
+| Permission         | Purpose                                                                                                    |
+| :----------------- | :--------------------------------------------------------------------------------------------------------- |
+| `activeTab`        | Grants access to the active webpage **only upon explicit user interaction**. Never runs in the background. |
+| `scripting`        | Injects the local content extractor script into the active page upon user request.                         |
+| `storage`          | Stores preferences and local history records directly on your computer.                                    |
+| `unlimitedStorage` | Ensures your local history is preserved without being pruned by default 5MB browser quotas.                |
+| `tabs`             | Used solely during "Context Pack" multi-tab bundling to read open tab titles and URLs.                     |
 
 > 🛡️ **No `<all_urls>` permission requested.** ContextLion cannot read pages without your explicit permission. See [PRIVACY.md](PRIVACY.md).
 
@@ -155,6 +162,7 @@ One-Click Copy (Clipboard API) or Local File Download (.md / .zip)
 ## 🚀 Developer Guide
 
 ### Prerequisites
+
 - [Node.js](https://nodejs.org/) (v20+)
 - [pnpm](https://pnpm.io/) (v9+)
 
@@ -162,8 +170,8 @@ One-Click Copy (Clipboard API) or Local File Download (.md / .zip)
 
 ```bash
 # Clone the repository
-git clone https://github.com/malilion/context-lion.git
-cd context-lion
+git clone https://github.com/malilion/ContextLion.git
+cd ContextLion
 
 # Install dependencies
 pnpm install
@@ -173,6 +181,7 @@ pnpm dev
 ```
 
 In Google Chrome, navigate to `chrome://extensions`:
+
 1. Toggle on **"Developer mode"** in the top-right corner.
 2. Click **"Load unpacked"** in the top-left corner.
 3. Select the `.output/chrome-mv3` folder to test the extension!

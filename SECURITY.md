@@ -6,7 +6,7 @@ We actively provide security patches for the following versions:
 
 | Version | Supported          |
 | ------- | ------------------ |
-| 0.1.x   | :white_check_mark: |
+| 1.x     | :white_check_mark: |
 
 ## Reporting a Vulnerability
 
@@ -19,5 +19,5 @@ We take the security of ContextLion seriously. Because ContextLion handles raw w
 If you believe you have found a security issue or vulnerability:
 
 1. Please do **not** disclose the issue publicly in an open GitHub issue.
-2. Email details of the issue to security@malilion.dev or open a Private Security Advisory on GitHub.
+2. Email details of the issue to <malilion.dev@gmail.com> or open a Private Security Advisory on GitHub.
 3. We will acknowledge receipt within 48 hours and coordinate a fix and release.

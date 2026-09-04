@@ -12,8 +12,8 @@ Thank you for your interest in contributing to ContextLion!
 ### Setup
 
 ```bash
-git clone https://github.com/malilion/context-lion.git
-cd context-lion
+git clone https://github.com/malilion/ContextLion.git
+cd ContextLion
 pnpm install
 ```
 

@@ -31,13 +31,13 @@
 
 在日常使用 **Claude、ChatGPT、Gemini、DeepSeek** 或 **Cursor** 時，我們經常需要餵給 AI 網頁文章、技術文件或新聞作為參考脈絡。
 
-| ❌ 傳統直接反白複製的痛點 | ✅ 使用 ContextLion 的極致體驗 |
-| :--- | :--- |
-| 夾帶大量**導覽列、頁尾連結、廣告橫幅與 Cookie 彈窗** | **智慧淨化核心文章**，徹底剔除無關元件，只留乾淨內文 |
-| 肥大的 Base64 圖片編碼一口氣吃掉數萬 Token | **自動剝除 Base64 內嵌圖片**，大幅節省 AI 視窗容量與費用 |
-| 雜訊引發「迷失在中間 (Lost in the Middle)」降低回答品質 | **優雅的 GitHub Flavored Markdown**，標題層級自動規範化 |
-| 每次貼上都要重複手打「請幫我整理重點...」 | **內建 8 組專業 Prompt Presets**，一鍵包裝好提示詞直接問 |
-| 不知道這篇文章有多長，到底會不會爆掉 Context | **CJK 語系感知 Token 估算器**，即時預估繁中/英文字元消耗 |
+| ❌ 傳統直接反白複製的痛點                               | ✅ 使用 ContextLion 的極致體驗                           |
+| :------------------------------------------------------ | :------------------------------------------------------- |
+| 夾帶大量**導覽列、頁尾連結、廣告橫幅與 Cookie 彈窗**    | **智慧淨化核心文章**，徹底剔除無關元件，只留乾淨內文     |
+| 肥大的 Base64 圖片編碼一口氣吃掉數萬 Token              | **自動剝除 Base64 內嵌圖片**，大幅節省 AI 視窗容量與費用 |
+| 雜訊引發「迷失在中間 (Lost in the Middle)」降低回答品質 | **優雅的 GitHub Flavored Markdown**，標題層級自動規範化  |
+| 每次貼上都要重複手打「請幫我整理重點...」               | **內建 8 組專業 Prompt Presets**，一鍵包裝好提示詞直接問 |
+| 不知道這篇文章有多長，到底會不會爆掉 Context            | **CJK 語系感知 Token 估算器**，即時預估繁中/英文字元消耗 |
 
 ```text
 網頁文章 / 技術文件 ➔ ContextLion 自動去雜訊 ➔ 純淨 Markdown + AI 提示詞 ➔ 直接貼進 Claude / ChatGPT / Gemini
@@ -56,6 +56,7 @@
 ## 📸 5 大核心功能實機展示
 
 ### 1. ⚡ 一鍵文章擷取與 AI 脈絡生成 (One-Click Context)
+
 一鍵將網頁轉換為結構化的 GitHub Flavored Markdown，保留完整程式碼區塊（語法高亮標籤）、表格與引用，並即時顯示字數、大小與 Token 消耗。
 
 ![核心文章擷取與 AI 脈絡生成](assets/store/screenshots/screenshot-1-overview.png)
@@ -63,7 +64,9 @@
 ---
 
 ### 2. ✨ 內建 AI 提示詞模板 (Prompt Presets)
+
 不用每次重複手打指令！內建多種常用專業提示詞，也可以自由新增自訂模板：
+
 - ⚡ **執行摘要 (TL;DR)**：快速抓住文章核心要旨。
 - 🎯 **核心重點與待辦 (Key Action Items)**：提取關鍵決策與執行清單。
 - 👶 **深入淺出白話解釋 (Explain Like I'm 5)**：將艱澀術語轉為通俗易懂的解釋。
@@ -75,6 +78,7 @@
 ---
 
 ### 3. 🎯 外科手術式視覺元素選取器 (Precision Element Picker)
+
 遇到長篇網頁只需要其中的一個比較表格、一段程式碼或一則評論？
 開啟元素選取模式，滑鼠移至任意區塊會亮起金色選取框，點擊即可局部精準擷取，完全不受頁面其他雜訊干擾！
 
@@ -83,7 +87,9 @@
 ---
 
 ### 4. 📦 多分頁脈絡打包與批次 ZIP 匯出 (Context Pack)
+
 進行深度研究時通常會開啟多個分頁。ContextLion 支援一鍵讀取當前視窗的所有分頁，自動依網域分組：
+
 - **即時聚合 Token**：勾選想要的分頁，即時統計所有文章合併的 Token 總數。
 - **一鍵合併複製**：將多篇文章打包成單一格式統一的 AI 脈絡。
 - **批次匯出 ZIP**：無須後端伺服器，本地直接生成標準 `.zip` 壓縮檔，內含 `README.md`、`all-sources-combined.md` 與獨立編號的 Markdown 文章。
@@ -93,6 +99,7 @@
 ---
 
 ### 5. 🔒 100% 本地運算與個人化設定 (Local-First & Settings)
+
 - **100% Client-Side**：所有 DOM 清洗、Markdown 轉換與 Token 計算都在您的電腦瀏覽器本地執行。
 - **零隱私追蹤**：無後端伺服器、無任何資料上傳、無 Google Analytics 或第三方追蹤。
 - **豐富自訂選項**：可自訂標題層級自動校正、Base64 圖片過濾、URL 追蹤參數自動淨化（去除 `utm_*`、`fbclid`）與 Token 估算模型比例。
@@ -113,13 +120,13 @@
 
 ContextLion 恪守 **最小權限原則 (Principle of Least Privilege)**，絕不胡亂申請危險權限：
 
-| 權限項目 | 用途說明 |
-| :--- | :--- |
-| `activeTab` | 僅在您**主動點選**擴充功能圖示或選取器時讀取當前頁面，絕不在背景常駐監聽。 |
-| `scripting` | 僅在您點擊擷取時，將本地解析腳本注入當前頁面提取純淨文字。 |
-| `storage` | 在本機儲存您的個人偏好設定（外觀、格式、自訂 Prompt）與歷史紀錄。 |
-| `unlimitedStorage` | 確保本機儲存的歷史紀錄不會因超過瀏覽器 5MB 配額上限而遺失。 |
-| `tabs` | 僅用於「多分頁 Context Pack 打包」時讀取分頁標題與網址供您勾選。 |
+| 權限項目           | 用途說明                                                                   |
+| :----------------- | :------------------------------------------------------------------------- |
+| `activeTab`        | 僅在您**主動點選**擴充功能圖示或選取器時讀取當前頁面，絕不在背景常駐監聽。 |
+| `scripting`        | 僅在您點擊擷取時，將本地解析腳本注入當前頁面提取純淨文字。                 |
+| `storage`          | 在本機儲存您的個人偏好設定（外觀、格式、自訂 Prompt）與歷史紀錄。          |
+| `unlimitedStorage` | 確保本機儲存的歷史紀錄不會因超過瀏覽器 5MB 配額上限而遺失。                |
+| `tabs`             | 僅用於「多分頁 Context Pack 打包」時讀取分頁標題與網址供您勾選。           |
 
 > 🛡️ **絕不申請 `<all_urls>` 全網域權限**，沒有您的點擊授權，擴充功能無法主動讀取任何網頁。詳細請參閱 [PRIVACY.md](PRIVACY.md)。
 
@@ -154,6 +161,7 @@ Token Estimator (CJK + 歐語加權估算) + Prompt Presets (套用 AI 提示詞
 ## 🚀 開發者指南 (Developer Guide)
 
 ### 前置需求
+
 - [Node.js](https://nodejs.org/) (v20+)
 - [pnpm](https://pnpm.io/) (v9+)
 
@@ -161,8 +169,8 @@ Token Estimator (CJK + 歐語加權估算) + Prompt Presets (套用 AI 提示詞
 
 ```bash
 # 複製儲存庫
-git clone https://github.com/malilion/context-lion.git
-cd context-lion
+git clone https://github.com/malilion/ContextLion.git
+cd ContextLion
 
 # 安裝相依套件
 pnpm install
@@ -172,6 +180,7 @@ pnpm dev
 ```
 
 在 Chrome 瀏覽器開啟 `chrome://extensions`：
+
 1. 開啟右上角 **「開發者模式」**。
 2. 點選左上角 **「載入未封裝項目」**。
 3. 選取專案中的 `.output/chrome-mv3` 目錄即可測試！
