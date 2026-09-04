@@ -5,6 +5,7 @@ export interface UserPreferences {
   defaultCopyFormat: 'ai-context' | 'markdown' | 'plain-text'
   includeImages: boolean
   includeLinks: boolean
+  normalizeHeadings: boolean
   defaultPromptPreset: string
   customPrompts: PromptPreset[]
 }
@@ -14,6 +15,7 @@ const DEFAULT_PREFERENCES: UserPreferences = {
   defaultCopyFormat: 'ai-context',
   includeImages: true,
   includeLinks: true,
+  normalizeHeadings: true,
   defaultPromptPreset: 'none',
   customPrompts: [],
 }

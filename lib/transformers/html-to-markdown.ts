@@ -1,9 +1,11 @@
 import TurndownService from 'turndown'
 import { gfm } from 'turndown-plugin-gfm'
+import { normalizeHeadings } from './heading-normalizer'
 
 export interface MarkdownTransformOptions {
   includeImages?: boolean
   includeLinks?: boolean
+  normalizeHeadings?: boolean
 }
 
 /**
@@ -121,6 +123,9 @@ export function htmlToMarkdown(html: string, options: MarkdownTransformOptions =
   }
 
   const service = createTurndownService(options)
-  const rawMarkdown = service.turndown(content)
+  let rawMarkdown = service.turndown(content)
+  if (options.normalizeHeadings !== false) {
+    rawMarkdown = normalizeHeadings(rawMarkdown)
+  }
   return normalizeMarkdown(rawMarkdown)
 }

@@ -18,6 +18,7 @@ export default [
       'dist/**',
       'coverage/**',
       'playwright-report/**',
+      'DevTrace Lion/**',
     ],
   },
 ]
