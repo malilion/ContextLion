@@ -7,6 +7,7 @@ This document contains all the copy, field character counts, detailed descriptio
 ## 1. Store Listing Information
 
 ### Extension Name
+
 ```text
 ContextLion - Web to AI Context & Markdown
 ```
@@ -14,16 +15,19 @@ ContextLion - Web to AI Context & Markdown
 ---
 
 ### Summary / Short Description
+
 > ⚠️ **Google Enforcement**: Strictly limited to a maximum of **132 characters**.
 
 ```text
 Turn any webpage into clean, AI-ready Markdown. Strip ads, estimate LLM tokens, and export with zero telemetry. 100% local-first.
 ```
-*(Exact length: 121 characters — 100% compliant)*
+
+_(Exact length: 121 characters — 100% compliant)_
 
 ---
 
 ### Detailed Description
+
 > Maximum 16,000 characters. Supports line breaks, emojis, and bullet points. Copy and paste directly:
 
 ```text
@@ -89,6 +93,7 @@ Transform web research into high-octane fuel for your AI assistant—install Con
 ---
 
 ### Category
+
 - **Primary Category**: Select `Productivity` or `Workflow & Planning`
 
 ---
@@ -98,7 +103,9 @@ Transform web research into high-octane fuel for your AI assistant—install Con
 > ⚠️ **Crucial for Google Store Reviewers**: Accurate answers here prevent review delays and rejections.
 
 ### 1. Single Purpose Description
+
 **Question: Please describe the single purpose of your extension:**
+
 ```text
 ContextLion's single purpose is to convert active webpage content or user-selected DOM elements into clean, structured Markdown and AI-ready context completely locally within the user's browser.
 ```
@@ -106,29 +113,32 @@ ContextLion's single purpose is to convert active webpage content or user-select
 ---
 
 ### 2. Permission Justifications
+
 Provide the exact justification for each declared permission in `manifest.json`:
 
-| Permission | Justification (Copy & Paste) |
-| :--- | :--- |
-| **`activeTab`** | Used to access the DOM content of the currently active tab when the user explicitly clicks the extension icon or activates the element picker, converting article text into clean Markdown. |
-| **`scripting`** | Used to inject the client-side content parser (Mozilla Readability and DOM sanitizer) into the active page upon user request to extract main article text. |
-| **`storage`** | Used to save user preferences (theme, Markdown format toggles, custom prompt presets) and local extraction history records directly on the user's device. |
-| **`unlimitedStorage`** | Used to ensure locally stored context history records are preserved without hitting the browser's default 5MB quota limit. |
-| **`tabs`** | Used by the 'Context Pack' feature to query tab titles and URLs in the current window when the user actively chooses to bundle multiple research articles together. |
+| Permission             | Justification (Copy & Paste)                                                                                                                                                                |
+| :--------------------- | :------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| **`activeTab`**        | Used to access the DOM content of the currently active tab when the user explicitly clicks the extension icon or activates the element picker, converting article text into clean Markdown. |
+| **`scripting`**        | Used to inject the client-side content parser (Mozilla Readability and DOM sanitizer) into the active page upon user request to extract main article text.                                  |
+| **`storage`**          | Used to save user preferences (theme, Markdown format toggles, custom prompt presets) and local extraction history records directly on the user's device.                                   |
+| **`unlimitedStorage`** | Used to ensure locally stored context history records are preserved without hitting the browser's default 5MB quota limit.                                                                  |
+| **`tabs`**             | Used by the 'Context Pack' feature to query tab titles and URLs in the current window when the user actively chooses to bundle multiple research articles together.                         |
 
 ---
 
 ### 3. Data Usage Questionnaire
+
 - **Question: Do you collect or process user data?**
   👉 Select **`No`** (ContextLion does not collect, store, or transmit personally identifiable information, browsing history, or analytics).
 - **Compliance Certifications (Check all 3 boxes ✅):**
-  1. ✅ *I confirm that I do not sell or transfer user data to third parties.*
-  2. ✅ *I confirm that I do not use or transfer user data for purposes unrelated to the item's single purpose.*
-  3. ✅ *I confirm that I do not use or transfer user data to determine creditworthiness or for lending purposes.*
+  1. ✅ _I confirm that I do not sell or transfer user data to third parties._
+  2. ✅ _I confirm that I do not use or transfer user data for purposes unrelated to the item's single purpose._
+  3. ✅ _I confirm that I do not use or transfer user data to determine creditworthiness or for lending purposes._
 
 ---
 
 ### 4. Privacy Policy URL
+
 ```text
 https://github.com/malilion/ContextLion/blob/main/PRIVACY.md
 ```

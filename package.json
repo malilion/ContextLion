@@ -2,6 +2,16 @@
   "name": "context-lion",
   "version": "1.0.0",
   "description": "Turn any webpage into clean, structured, AI-ready context.",
+  "license": "MIT",
+  "author": "Malilion Browser Tools Team <malilion.dev@gmail.com>",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/malilion/ContextLion.git"
+  },
+  "homepage": "https://github.com/malilion/ContextLion#readme",
+  "bugs": {
+    "url": "https://github.com/malilion/ContextLion/issues"
+  },
   "private": true,
   "type": "module",
   "scripts": {
@@ -14,6 +24,7 @@
     "compile": "vue-tsc --noEmit",
     "lint": "eslint .",
     "format": "prettier --write .",
+    "format:check": "prettier --check .",
     "test": "vitest run",
     "test:watch": "vitest",
     "test:e2e": "playwright test",

@@ -7,22 +7,27 @@
 ## 一、商品資訊 (Store Listing)
 
 ### 1. 擴充功能名稱 (Extension Name)
+
 ```text
 ContextLion - 網頁轉 AI 脈絡與 Markdown (Web to AI Context)
 ```
-*(英文版填寫：`ContextLion - Web to AI Context & Markdown`)*
+
+_(英文版填寫：`ContextLion - Web to AI Context & Markdown`)_
 
 ---
 
 ### 2. 精簡說明 (Short Description / Summary)
+
 > ⚠️ **注意**：Chrome 應用程式商店嚴格限制 **上限 132 個字元 (characters)**！
 
 **繁體中文版 (71 字，符合限制)：**
+
 ```text
 一鍵將任何網頁轉為乾淨的 Markdown 與 AI 脈絡！自動去廣告與雜訊、即時估算 Token，專為 Claude、ChatGPT 與 Gemini 打造。
 ```
 
 **英文版 (121 字元，符合限制)：**
+
 ```text
 Turn any webpage into clean, AI-ready Markdown. Strip ads, estimate LLM tokens, and export with zero telemetry. 100% local-first.
 ```
@@ -30,6 +35,7 @@ Turn any webpage into clean, AI-ready Markdown. Strip ads, estimate LLM tokens, 
 ---
 
 ### 3. 詳細說明 (Detailed Description)
+
 > 支援純文字與換行，上限 16,000 字元。請直接複製以下完整文案：
 
 ```text
@@ -94,25 +100,27 @@ ContextLion 遵循最小權限原則（Principle of Least Privilege）：
 ---
 
 ### 4. 類別 (Category)
+
 - **主要類別**：選擇 `生產力工具` (Productivity) 或 `工作流程與規劃` (Workflow & Planning)
 
 ---
 
 ### 5. 官方素材檔案清單 (Assets Checklist)
+
 上傳時請使用本專案已為您生成的檔案：
 
-| 素材項目 | 建議上傳檔案 | 檔案路徑 |
-| :--- | :--- | :--- |
-| **商店圖示 (128x128)** | `icon-128.png` | `assets/store/icon-128.png` |
-| **小宣傳圖磚 (440x280)** | `small-tile-440x280.png` | `assets/store/small-tile-440x280.png` |
-| **大型宣傳橫幅 (1400x560)** | `marquee-promo-1400x560.png` | `assets/store/marquee-promo-1400x560.png` |
-| **螢幕截圖 1** | `screenshot-1-overview.jpg` | `assets/store/screenshots/screenshot-1-overview.jpg` |
-| **螢幕截圖 2** | `screenshot-2-presets.jpg` | `assets/store/screenshots/screenshot-2-presets.jpg` |
-| **螢幕截圖 3** | `screenshot-3-picker.jpg` | `assets/store/screenshots/screenshot-3-picker.jpg` |
-| **螢幕截圖 4** | `screenshot-4-pack.jpg` | `assets/store/screenshots/screenshot-4-pack.jpg` |
-| **螢幕截圖 5** | `screenshot-5-options.jpg` | `assets/store/screenshots/screenshot-5-options.jpg` |
+| 素材項目                    | 建議上傳檔案                 | 檔案路徑                                             |
+| :-------------------------- | :--------------------------- | :--------------------------------------------------- |
+| **商店圖示 (128x128)**      | `icon-128.png`               | `assets/store/icon-128.png`                          |
+| **小宣傳圖磚 (440x280)**    | `small-tile-440x280.png`     | `assets/store/small-tile-440x280.png`                |
+| **大型宣傳橫幅 (1400x560)** | `marquee-promo-1400x560.png` | `assets/store/marquee-promo-1400x560.png`            |
+| **螢幕截圖 1**              | `screenshot-1-overview.jpg`  | `assets/store/screenshots/screenshot-1-overview.jpg` |
+| **螢幕截圖 2**              | `screenshot-2-presets.jpg`   | `assets/store/screenshots/screenshot-2-presets.jpg`  |
+| **螢幕截圖 3**              | `screenshot-3-picker.jpg`    | `assets/store/screenshots/screenshot-3-picker.jpg`   |
+| **螢幕截圖 4**              | `screenshot-4-pack.jpg`      | `assets/store/screenshots/screenshot-4-pack.jpg`     |
+| **螢幕截圖 5**              | `screenshot-5-options.jpg`   | `assets/store/screenshots/screenshot-5-options.jpg`  |
 
-*(註：螢幕截圖已包含無 Alpha 透明層的 `.jpg` 與 `.png`，建議優先選取 `.jpg` 上傳避免任何格式問題)*
+_(註：螢幕截圖已包含無 Alpha 透明層的 `.jpg` 與 `.png`，建議優先選取 `.jpg` 上傳避免任何格式問題)_
 
 ---
 
@@ -121,28 +129,33 @@ ContextLion 遵循最小權限原則（Principle of Least Privilege）：
 > ⚠️ **Google 審查最常退件的項目**！請務必依照以下內容精準填寫：
 
 ### 1. 單一用途說明 (Single Purpose)
+
 **問：請說明擴充功能的單一用途**
+
 ```text
 ContextLion 的單一用途是將使用者主動瀏覽的網頁或特定選取區塊，在使用者本機端清洗去雜訊並轉換為結構化的 Markdown 格式與 AI 脈絡提示詞，供使用者複製至大型語言模型（LLM）中使用。
 ```
-*(英文版備用：`ContextLion's single purpose is to convert active webpage content or selected DOM elements into clean, structured Markdown and AI-ready context completely locally within the user's browser.`)*
+
+_(英文版備用：`ContextLion's single purpose is to convert active webpage content or selected DOM elements into clean, structured Markdown and AI-ready context completely locally within the user's browser.`)_
 
 ---
 
 ### 2. 權限使用理由 (Permission Justification)
+
 後台會列出 `manifest.json` 中宣告的所有權限，並要求填寫理由：
 
-| 權限名稱 | 請複製並貼上以下理由 |
-| :--- | :--- |
-| **`activeTab`** | 用於在使用者主動開啟擴充功能彈出面板或啟動元素選取器時，讀取當前作用中分頁的 DOM 內容以轉換為 Markdown。 |
-| **`scripting`** | 用於在使用者觸發擷取時，將本機的純文字與 DOM 清理腳本注入至當前分頁中執行文章解析。 |
-| **`storage`** | 用於在使用者裝置本機儲存使用者自訂的偏好設定（主題、Markdown 格式選項、自訂 Prompt）與本機歷史紀錄。 |
-| **`unlimitedStorage`** | 用於確保使用者儲存的本地擷取歷史紀錄不會因為超出瀏覽器預設的 5MB 配額上限而遺失資料。 |
-| **`tabs`** | 用於「多分頁 Context Pack 打包」功能，在使用者主動點擊時列出當前視窗的分頁標題與網址，供使用者自由勾選多篇文檔進行合併打包。 |
+| 權限名稱               | 請複製並貼上以下理由                                                                                                         |
+| :--------------------- | :--------------------------------------------------------------------------------------------------------------------------- |
+| **`activeTab`**        | 用於在使用者主動開啟擴充功能彈出面板或啟動元素選取器時，讀取當前作用中分頁的 DOM 內容以轉換為 Markdown。                     |
+| **`scripting`**        | 用於在使用者觸發擷取時，將本機的純文字與 DOM 清理腳本注入至當前分頁中執行文章解析。                                          |
+| **`storage`**          | 用於在使用者裝置本機儲存使用者自訂的偏好設定（主題、Markdown 格式選項、自訂 Prompt）與本機歷史紀錄。                         |
+| **`unlimitedStorage`** | 用於確保使用者儲存的本地擷取歷史紀錄不會因為超出瀏覽器預設的 5MB 配額上限而遺失資料。                                        |
+| **`tabs`**             | 用於「多分頁 Context Pack 打包」功能，在使用者主動點擊時列出當前視窗的分頁標題與網址，供使用者自由勾選多篇文檔進行合併打包。 |
 
 ---
 
 ### 3. 資料使用情形問卷 (Data Usage)
+
 - **問：您是否收集或使用任何個人資料？**
   👉 選擇 **「否 (No)」**（未收集任何個人識別資訊、健康資訊、金融資訊或身分憑證）。
 - **三個合規聲明勾選方塊**（請全部打勾 ✅）：
@@ -153,11 +166,14 @@ ContextLion 的單一用途是將使用者主動瀏覽的網頁或特定選取�
 ---
 
 ### 4. 隱私權政策網址 (Privacy Policy URL)
+
 在後台填寫公開的 PRIVACY.md 網址，例如：
+
 ```text
 https://github.com/malilion/ContextLion/blob/main/PRIVACY.md
 ```
-*(若尚未開源或有自己的網站，可填寫個人部落格或 GitHub gist 頁面)*
+
+_(若尚未開源或有自己的網站，可填寫個人部落格或 GitHub gist 頁面)_
 
 ---
 

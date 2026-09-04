@@ -6,8 +6,14 @@ import { fileURLToPath } from 'url'
 const __dirname = path.dirname(fileURLToPath(import.meta.url))
 const rootDir = path.resolve(__dirname, '..')
 
-const uploadedImgPath =
-  '/Users/changtingyu/.gemini/antigravity/brain/8eaee29b-57f5-4ed0-ae78-6af163f482e9/.user_uploaded/media_1788534844260.jpg'
+const defaultImgPath = path.resolve(rootDir, 'public/logo-full.png')
+const uploadedImgPath = process.argv[2] || (fs.existsSync(defaultImgPath) ? defaultImgPath : null)
+
+if (!uploadedImgPath || !fs.existsSync(uploadedImgPath)) {
+  console.log('Usage: node scripts/process-new-logo.mjs [path-to-image]')
+  process.exit(0)
+}
+
 const imgBase64 = fs.readFileSync(uploadedImgPath).toString('base64')
 
 async function processLogo() {
@@ -102,7 +108,10 @@ async function processLogo() {
 
     // Accurate bounding box scan of the lion mascot
     const mData = cmctx.getImageData(0, 0, 1024, 1024).data
-    let minX = 1024, minY = 1024, maxX = 0, maxY = 0
+    let minX = 1024,
+      minY = 1024,
+      maxX = 0,
+      maxY = 0
     for (let y = 0; y < 650; y++) {
       for (let x = 0; x < 1024; x++) {
         const a = mData[(y * 1024 + x) * 4 + 3]
@@ -126,8 +135,8 @@ async function processLogo() {
     const pad = 8
     const cropX = Math.max(0, minX - pad)
     const cropY = Math.max(0, minY - pad)
-    const cropW = Math.min(1024 - cropX, (maxX - minX + 1) + pad * 2)
-    const cropH = Math.min(650 - cropY, (maxY - minY + 1) + pad * 2)
+    const cropW = Math.min(1024 - cropX, maxX - minX + 1 + pad * 2)
+    const cropH = Math.min(650 - cropY, maxY - minY + 1 + pad * 2)
 
     // Center in 512x512 with balanced padding
     const maxDimension = 464
