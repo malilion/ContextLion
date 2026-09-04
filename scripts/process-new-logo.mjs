@@ -36,7 +36,7 @@ async function processLogo() {
     mctx.drawImage(rawImg, 0, 0)
 
     const imgData = mctx.getImageData(0, 0, 1024, 1024)
-    const d = imgData.data;
+    const d = imgData.data
 
     // BFS Flood fill from edges
     const visited = new Uint8Array(1024 * 1024)
@@ -44,23 +44,23 @@ async function processLogo() {
 
     // Seed all 4 edges
     for (let x = 0; x < 1024; x++) {
-      queue.push(x); // top
-      queue.push(1023 * 1024 + x); // bottom
-      visited[x] = 1;
-      visited[1023 * 1024 + x] = 1;
+      queue.push(x) // top
+      queue.push(1023 * 1024 + x) // bottom
+      visited[x] = 1
+      visited[1023 * 1024 + x] = 1
     }
     for (let y = 1; y < 1023; y++) {
-      queue.push(y * 1024); // left
-      queue.push(y * 1024 + 1023); // right
-      visited[y * 1024] = 1;
-      visited[y * 1024 + 1023] = 1;
+      queue.push(y * 1024) // left
+      queue.push(y * 1024 + 1023) // right
+      visited[y * 1024] = 1
+      visited[y * 1024 + 1023] = 1
     }
 
-    let head = 0;
+    let head = 0
     while (head < queue.length) {
-      const idx = queue[head++];
-      const x = idx % 1024;
-      const y = Math.floor(idx / 1024);
+      const idx = queue[head++]
+      const x = idx % 1024
+      const y = Math.floor(idx / 1024)
 
       const neighbors = []
       if (x > 0) neighbors.push(idx - 1)
@@ -70,11 +70,11 @@ async function processLogo() {
 
       for (const n of neighbors) {
         if (!visited[n]) {
-          const p = n * 4;
-          const maxVal = Math.max(d[p], d[p + 1], d[p + 2]);
+          const p = n * 4
+          const maxVal = Math.max(d[p], d[p + 1], d[p + 2])
           if (maxVal < 36) {
-            visited[n] = 1;
-            queue.push(n);
+            visited[n] = 1
+            queue.push(n)
           }
         }
       }
@@ -83,10 +83,10 @@ async function processLogo() {
     // Apply transparency with edge smoothing
     for (let i = 0; i < 1024 * 1024; i++) {
       if (visited[i]) {
-        d[i * 4 + 3] = 0;
+        d[i * 4 + 3] = 0
       }
     }
-    mctx.putImageData(imgData, 0, 0);
+    mctx.putImageData(imgData, 0, 0)
 
     // Full transparent logo
     const fullTransparentDataUrl = masterCanvas.toDataURL('image/png')
@@ -103,17 +103,7 @@ async function processLogo() {
     const srcY = 90
     const srcSize = 660
 
-    ectx.drawImage(
-      masterCanvas,
-      srcX,
-      srcY,
-      srcSize,
-      srcSize,
-      16,
-      16,
-      480,
-      480
-    )
+    ectx.drawImage(masterCanvas, srcX, srcY, srcSize, srcSize, 16, 16, 480, 480)
 
     const emblemDataUrl = emblemCanvas.toDataURL('image/png')
 

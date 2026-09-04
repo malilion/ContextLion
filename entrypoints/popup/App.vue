@@ -77,6 +77,7 @@ const preferences = ref<UserPreferences>({
   defaultCopyFormat: 'ai-context',
   includeImages: true,
   includeLinks: true,
+  normalizeHeadings: true,
   defaultPromptPreset: 'none',
   customPrompts: [],
 })
@@ -131,6 +132,7 @@ function handleExtractionResult(raw: RawExtraction) {
   const context = buildPageContext(raw, {
     includeImages: preferences.value.includeImages,
     includeLinks: preferences.value.includeLinks,
+    normalizeHeadings: preferences.value.normalizeHeadings,
   })
 
   if (!context.markdown.trim() && !context.plainText.trim()) {
@@ -671,6 +673,21 @@ onMounted(async () => {
             :checked="preferences.includeLinks"
             class="rounded border-gray-700 text-lion-500 focus:ring-lion-400 bg-gray-800"
             @change="updatePreference('includeLinks', ($event.target as HTMLInputElement).checked)"
+          />
+        </label>
+
+        <label class="flex items-center justify-between cursor-pointer py-1">
+          <div>
+            <div>Normalize Heading Levels</div>
+            <div class="text-[10px] text-gray-500">Shifts highest body headings to ##</div>
+          </div>
+          <input
+            type="checkbox"
+            :checked="preferences.normalizeHeadings"
+            class="rounded border-gray-700 text-lion-500 focus:ring-lion-400 bg-gray-800"
+            @change="
+              updatePreference('normalizeHeadings', ($event.target as HTMLInputElement).checked)
+            "
           />
         </label>
       </div>

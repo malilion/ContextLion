@@ -12,7 +12,7 @@ describe('Transformers module', () => {
 
   it('converts basic headings, paragraphs, and lists into markdown', () => {
     const html = `
-      <h1>Heading 1</h1>
+      <h2>Heading 2</h2>
       <p>This is a <strong>bold</strong> and <em>italic</em> paragraph with a <a href="https://example.com">link</a>.</p>
       <ul>
         <li>First item</li>
@@ -21,12 +21,24 @@ describe('Transformers module', () => {
     `
     const md = htmlToMarkdown(html)
 
-    expect(md).toContain('# Heading 1')
+    expect(md).toContain('## Heading 2')
     expect(md).toContain('**bold**')
     expect(md).toContain('*italic*')
     expect(md).toContain('[link](https://example.com)')
     expect(md).toContain('-   First item')
     expect(md).toContain('-   Second item')
+  })
+
+  it('normalizes heading depths by default (shifting h3 to h2)', () => {
+    const html = `
+      <h3>Section Heading</h3>
+      <p>Section body.</p>
+      <h4>Sub-section Heading</h4>
+      <p>Sub-section body.</p>
+    `
+    const md = htmlToMarkdown(html)
+    expect(md).toContain('## Section Heading')
+    expect(md).toContain('### Sub-section Heading')
   })
 
   it('preserves fenced code blocks and language hints (Issue #9)', () => {

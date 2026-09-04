@@ -18,6 +18,7 @@ const preferences = ref<UserPreferences>({
   defaultCopyFormat: 'ai-context',
   includeImages: true,
   includeLinks: true,
+  normalizeHeadings: true,
   defaultPromptPreset: 'none',
   customPrompts: [],
 })
@@ -92,6 +93,7 @@ async function handleResetDefaults() {
       defaultCopyFormat: 'ai-context',
       includeImages: true,
       includeLinks: true,
+      normalizeHeadings: true,
       defaultPromptPreset: 'none',
       customPrompts: [],
     }
@@ -224,6 +226,28 @@ onMounted(async () => {
               class="w-4 h-4 rounded border-gray-700 text-lion-500 focus:ring-lion-400 bg-gray-800"
               @change="
                 handleSavePreference('includeLinks', ($event.target as HTMLInputElement).checked)
+              "
+            />
+          </label>
+
+          <label
+            class="flex items-center justify-between cursor-pointer py-1.5 px-3 rounded-lg hover:bg-gray-800/50 transition-colors"
+          >
+            <div>
+              <div class="text-sm font-medium text-gray-200">Normalize Heading Depths</div>
+              <div class="text-xs text-gray-400">
+                Automatically shifts top-level body headings to ## to preserve document hierarchy.
+              </div>
+            </div>
+            <input
+              type="checkbox"
+              :checked="preferences.normalizeHeadings"
+              class="w-4 h-4 rounded border-gray-700 text-lion-500 focus:ring-lion-400 bg-gray-800"
+              @change="
+                handleSavePreference(
+                  'normalizeHeadings',
+                  ($event.target as HTMLInputElement).checked
+                )
               "
             />
           </label>
