@@ -27,5 +27,16 @@ coverage/
 playwright-report/
 test-results/
 
+# IDE & Editors
+.vscode/*
+!.vscode/settings.json
+!.vscode/extensions.json
+.idea/
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.sw?
+
 # Other projects
 DevTrace Lion/
