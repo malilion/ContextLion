@@ -23,4 +23,7 @@ export default defineConfig({
       128: 'icon-128.png',
     },
   },
+  zip: {
+    excludeSources: ['DevTrace Lion/**'],
+  },
 })
