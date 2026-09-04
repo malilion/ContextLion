@@ -19,22 +19,23 @@ ContextLion is built by Malilion Browser Tools with an uncompromising privacy-fi
 
 ContextLion adheres strictly to the Principle of Least Privilege and Chrome Web Store Single Purpose Policy. We request only the permissions strictly necessary to convert the active webpage into structured Markdown:
 
-| Permission  | Purpose & Scope                                                                                                                                                                                             |
-| ----------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `activeTab` | Grants temporary access to the active webpage **only when you explicitly open the extension popup**. It does not run continuously in the background and cannot observe your browsing history or other tabs. |
-| `scripting` | Enables ContextLion to inject the local content extractor script into the active tab to read page content when requested.                                                                                   |
-| `storage`   | Uses `chrome.storage.sync` strictly to persist your local user preferences (such as theme and export options).                                                                                              |
+| Permission  | Purpose & Scope                                                                                                                                                                                           |
+| ----------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `activeTab` | Grants temporary access to the active webpage **only when you explicitly open the extension popup**. It does not run continuously in the background.                                                      |
+| `tabs`      | Allows ContextLion to query tab titles and URLs in your current window to display domain groupings and perform multi-tab Context Pack extraction upon user request. Zero browsing history is transmitted. |
+| `scripting` | Enables ContextLion to inject the local content extractor script into selected tabs to extract clean content when requested.                                                                              |
+| `storage`   | Uses `chrome.storage.sync` for user preferences and `chrome.storage.local` to store your local Context History records completely on your device.                                                         |
 
 > [!NOTE]
-> ContextLion **does not** request broad host permissions (e.g. `<all_urls>`) or permanent `tabs` access in the MVP release.
+> ContextLion **does not** request `<all_urls>` host permissions and never transmits your tab URLs or content to any remote server. Everything is processed and stored 100% locally.
 
 ---
 
 ## 3. Data Storage & Clipboard
 
-- **Temporary Memory**: Extracted content is held only in transient memory within the popup session. Closing the popup clears this temporary memory.
-- **Clipboard Access**: Copying AI Context or Markdown occurs directly in response to your explicit button clicks (`Copy AI Context`, `Copy Markdown`, `Copy Plain Text`).
-- **File Downloads**: Files downloaded (`.md`, `.txt`) are written directly to your browser's default download folder using standard browser Blob APIs.
+- **Local Storage**: Context history and preferences are saved locally on your computer via standard Chrome extension storage APIs. You can clear history at any time from the popup drawer or Options page.
+- **Clipboard Access**: Copying AI Context, Markdown, or Context Packs occurs strictly in response to your explicit button clicks.
+- **File & ZIP Downloads**: Files downloaded (`.md`, `.txt`, `.zip`) are generated in-memory via client-side Blob APIs and saved to your default download folder.
 
 ---
 

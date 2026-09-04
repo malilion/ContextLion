@@ -1,6 +1,6 @@
 {
   "name": "context-lion",
-  "version": "0.2.0",
+  "version": "1.0.0",
   "description": "Turn any webpage into clean, structured, AI-ready context.",
   "private": true,
   "type": "module",

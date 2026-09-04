@@ -1,13 +1,35 @@
 <script setup lang="ts">
-import { ref, onMounted } from 'vue'
-import { Sparkles, Settings, Plus, Trash2, RotateCcw, Check, ExternalLink } from 'lucide-vue-next'
+import { ref, computed, onMounted } from 'vue'
+import {
+  Sparkles,
+  Settings,
+  Plus,
+  Trash2,
+  RotateCcw,
+  Check,
+  ExternalLink,
+  History,
+  Star,
+  Search,
+  Copy,
+  Package,
+  FileText,
+} from 'lucide-vue-next'
 
 import {
   getPreferences,
   savePreferences,
   type UserPreferences,
 } from '../../lib/storage/preferences'
+import {
+  getHistoryRecords,
+  deleteHistoryRecord,
+  toggleFavoriteHistoryRecord,
+  clearHistory,
+  type HistoryRecord,
+} from '../../lib/storage/history'
 import { BUILTIN_PROMPT_PRESETS, type PromptPreset } from '../../lib/context/prompt-presets'
+import { formatTokenEstimate } from '../../lib/context/token-estimator'
 
 import Button from '../../components/ui/Button.vue'
 import Badge from '../../components/ui/Badge.vue'
@@ -22,6 +44,10 @@ const preferences = ref<UserPreferences>({
   defaultPromptPreset: 'none',
   customPrompts: [],
 })
+
+const historyRecords = ref<HistoryRecord[]>([])
+const historySearch = ref('')
+const historyFilter = ref<'all' | 'favorites'>('all')
 
 const toast = ref<{ show: boolean; message: string; type: 'success' | 'error' | 'info' }>({
   show: false,
@@ -102,8 +128,69 @@ async function handleResetDefaults() {
   }
 }
 
+// History actions
+const filteredHistory = computed(() => {
+  let list = historyRecords.value
+  if (historyFilter.value === 'favorites') {
+    list = list.filter((r) => r.isFavorite)
+  }
+  if (historySearch.value.trim()) {
+    const q = historySearch.value.trim().toLowerCase()
+    list = list.filter(
+      (r) => r.title.toLowerCase().includes(q) || (r.url && r.url.toLowerCase().includes(q))
+    )
+  }
+  return list
+})
+
+async function reloadHistory() {
+  historyRecords.value = await getHistoryRecords()
+}
+
+async function handleToggleFavorite(id: string) {
+  await toggleFavoriteHistoryRecord(id)
+  await reloadHistory()
+}
+
+async function handleDeleteHistory(id: string) {
+  await deleteHistoryRecord(id)
+  await reloadHistory()
+  showToast('Removed item from history')
+}
+
+async function handleClearHistory(preserveFavorites: boolean) {
+  const msg = preserveFavorites
+    ? 'Clear all non-favorite items from history?'
+    : 'Are you sure you want to clear ALL history records?'
+  if (confirm(msg)) {
+    await clearHistory(preserveFavorites)
+    await reloadHistory()
+    showToast(preserveFavorites ? 'Cleared non-favorite history' : 'Cleared all history')
+  }
+}
+
+async function handleCopyHistoryMarkdown(record: HistoryRecord) {
+  try {
+    await navigator.clipboard.writeText(record.markdown)
+    showToast(`Copied "${record.title}" to clipboard!`)
+  } catch {
+    showToast('Failed to copy to clipboard', 'error')
+  }
+}
+
+function formatDate(timestamp: number): string {
+  const d = new Date(timestamp)
+  return d.toLocaleDateString(undefined, {
+    month: 'short',
+    day: 'numeric',
+    hour: '2-digit',
+    minute: '2-digit',
+  })
+}
+
 onMounted(async () => {
   preferences.value = await getPreferences()
+  await reloadHistory()
 })
 </script>
 
@@ -117,10 +204,11 @@ onMounted(async () => {
           <div>
             <div class="flex items-center gap-2">
               <h1 class="text-xl font-bold text-white tracking-tight">ContextLion Settings</h1>
-              <Badge variant="lion">v0.2.0</Badge>
+              <Badge variant="lion">v1.0.0</Badge>
             </div>
             <p class="text-xs text-gray-400 mt-0.5">
-              Customize extraction behavior, prompt presets, and export rules.
+              Configure extraction preferences, custom prompt presets, and manage captured context
+              history.
             </p>
           </div>
         </div>
@@ -159,7 +247,7 @@ onMounted(async () => {
               <option value="plain-text">Copy Plain Text</option>
             </select>
             <p class="text-xs text-gray-400 mt-1">
-              What action triggers when clicking primary button.
+              What action triggers when clicking primary button in single page view.
             </p>
           </div>
 
@@ -327,6 +415,166 @@ onMounted(async () => {
         </div>
       </section>
 
+      <!-- Section: History & Collections Management -->
+      <section class="bg-gray-900 border border-gray-800 rounded-2xl p-6 space-y-5">
+        <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+          <div>
+            <h2 class="text-base font-semibold text-white flex items-center gap-2">
+              <History class="w-4 h-4 text-lion-400" />
+              <span>Context History & Collections</span>
+            </h2>
+            <p class="text-xs text-gray-400 mt-0.5">
+              {{ historyRecords.length }} item(s) saved in local browser storage.
+            </p>
+          </div>
+
+          <div class="flex items-center gap-2">
+            <Button
+              variant="outline"
+              size="sm"
+              :disabled="historyRecords.length === 0"
+              @click="handleClearHistory(true)"
+            >
+              <span>Clear Non-Favorites</span>
+            </Button>
+            <Button
+              variant="ghost"
+              size="sm"
+              :disabled="historyRecords.length === 0"
+              class="text-rose-400 hover:text-rose-300"
+              @click="handleClearHistory(false)"
+            >
+              <span>Clear All</span>
+            </Button>
+          </div>
+        </div>
+
+        <!-- Filter and Search Row -->
+        <div class="flex flex-col sm:flex-row items-center gap-3 pt-2">
+          <div class="relative flex-1 w-full">
+            <Search class="w-3.5 h-3.5 absolute left-3 top-2.5 text-gray-500" />
+            <input
+              v-model="historySearch"
+              type="text"
+              placeholder="Search history by title or URL..."
+              class="w-full pl-9 pr-3 py-1.5 bg-gray-800 border border-gray-700 rounded-lg text-xs text-gray-100 placeholder-gray-500 focus:outline-none focus:ring-1 focus:ring-lion-400"
+            />
+          </div>
+
+          <div
+            class="flex items-center gap-1 bg-gray-800 p-0.5 rounded-lg border border-gray-700 self-stretch sm:self-auto text-xs"
+          >
+            <button
+              type="button"
+              class="px-3 py-1 rounded font-medium transition-colors"
+              :class="
+                historyFilter === 'all'
+                  ? 'bg-gray-700 text-white'
+                  : 'text-gray-400 hover:text-gray-200'
+              "
+              @click="historyFilter = 'all'"
+            >
+              All ({{ historyRecords.length }})
+            </button>
+            <button
+              type="button"
+              class="px-3 py-1 rounded font-medium transition-colors flex items-center gap-1"
+              :class="
+                historyFilter === 'favorites'
+                  ? 'bg-gray-700 text-amber-300'
+                  : 'text-gray-400 hover:text-gray-200'
+              "
+              @click="historyFilter = 'favorites'"
+            >
+              <Star class="w-3 h-3 fill-current" />
+              <span>Favorites ({{ historyRecords.filter((r) => r.isFavorite).length }})</span>
+            </button>
+          </div>
+        </div>
+
+        <!-- History List -->
+        <div v-if="filteredHistory.length > 0" class="space-y-2 pt-2">
+          <div
+            v-for="record in filteredHistory"
+            :key="record.id"
+            class="flex items-center justify-between p-3.5 bg-gray-950/60 border border-gray-800/80 rounded-xl gap-3 hover:border-gray-700 transition-colors"
+          >
+            <div class="flex items-start gap-3 min-w-0 flex-1">
+              <div class="mt-0.5 shrink-0">
+                <Package v-if="record.type === 'pack'" class="w-4 h-4 text-lion-400" />
+                <FileText v-else class="w-4 h-4 text-gray-400" />
+              </div>
+              <div class="min-w-0 flex-1 space-y-1">
+                <div class="flex items-center gap-2">
+                  <span class="text-sm font-semibold text-gray-200 truncate">
+                    {{ record.title }}
+                  </span>
+                  <Badge
+                    v-if="record.type === 'pack'"
+                    variant="lion"
+                    class="text-[10px] py-0 px-1.5"
+                  >
+                    Pack • {{ record.itemCount || 1 }} sources
+                  </Badge>
+                </div>
+                <div class="flex items-center gap-3 text-xs text-gray-500">
+                  <span>{{ formatDate(record.capturedAt) }}</span>
+                  <span>•</span>
+                  <span>{{ record.wordCount.toLocaleString() }} words</span>
+                  <span>•</span>
+                  <span>~{{ formatTokenEstimate(record.estimatedTokens) }} tokens</span>
+                  <span v-if="record.url" class="truncate max-w-[200px] text-gray-600">
+                    {{ record.url }}
+                  </span>
+                </div>
+              </div>
+            </div>
+
+            <!-- Actions -->
+            <div class="flex items-center gap-1 shrink-0">
+              <button
+                type="button"
+                class="p-2 rounded-lg transition-colors hover:bg-gray-800"
+                :class="record.isFavorite ? 'text-amber-400' : 'text-gray-600 hover:text-amber-400'"
+                :title="record.isFavorite ? 'Unfavorite' : 'Favorite'"
+                @click="handleToggleFavorite(record.id)"
+              >
+                <Star class="w-4 h-4" :class="{ 'fill-current': record.isFavorite }" />
+              </button>
+              <button
+                type="button"
+                class="p-2 text-gray-400 hover:text-gray-200 rounded-lg hover:bg-gray-800 transition-colors"
+                title="Copy Markdown"
+                @click="handleCopyHistoryMarkdown(record)"
+              >
+                <Copy class="w-4 h-4" />
+              </button>
+              <button
+                type="button"
+                class="p-2 text-gray-500 hover:text-rose-400 rounded-lg hover:bg-gray-800 transition-colors"
+                title="Delete item"
+                @click="handleDeleteHistory(record.id)"
+              >
+                <Trash2 class="w-4 h-4" />
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Empty History State -->
+        <div v-else class="text-center py-8 text-gray-500 text-xs space-y-1">
+          <History class="w-6 h-6 mx-auto text-gray-600 mb-2" />
+          <p class="font-medium text-gray-400">No history records found</p>
+          <p>
+            {{
+              historySearch
+                ? 'Try clearing your search query'
+                : 'Captured pages and Context Packs will appear here'
+            }}
+          </p>
+        </div>
+      </section>
+
       <!-- Add Custom Prompt Modal -->
       <div
         v-if="showAddModal"
@@ -382,7 +630,7 @@ onMounted(async () => {
       <footer
         class="pt-6 border-t border-gray-800/80 flex items-center justify-between text-xs text-gray-500"
       >
-        <div>ContextLion v0.2.0 • Local-First Architecture</div>
+        <div>ContextLion v1.0.0 • Local-First Architecture</div>
         <div class="flex items-center gap-4">
           <a
             href="https://github.com/malilion/context-lion"
