@@ -92,22 +92,55 @@ async function processLogo() {
     const fullTransparentDataUrl = masterCanvas.toDataURL('image/png')
 
     // Step 2: Extract Emblem (Lion + Document)
-    // Bounds: { minX: 200, minY: 103, maxX: 836, maxY: 649, w: 636, h: 546 }
+    // Strictly clear anything at or below Y=650 so NO text pixels bleed into emblem
+    const cleanMaster = document.createElement('canvas')
+    cleanMaster.width = 1024
+    cleanMaster.height = 1024
+    const cmctx = cleanMaster.getContext('2d')
+    cmctx.drawImage(masterCanvas, 0, 0)
+    cmctx.clearRect(0, 650, 1024, 1024 - 650)
+
+    // Accurate bounding box scan of the lion mascot
+    const mData = cmctx.getImageData(0, 0, 1024, 1024).data
+    let minX = 1024, minY = 1024, maxX = 0, maxY = 0
+    for (let y = 0; y < 650; y++) {
+      for (let x = 0; x < 1024; x++) {
+        const a = mData[(y * 1024 + x) * 4 + 3]
+        if (a > 20) {
+          if (x < minX) minX = x
+          if (x > maxX) maxX = x
+          if (y < minY) minY = y
+          if (y > maxY) maxY = y
+        }
+      }
+    }
+
     const emblemCanvas = document.createElement('canvas')
     emblemCanvas.width = 512
     emblemCanvas.height = 512
     const ectx = emblemCanvas.getContext('2d')
+    ectx.imageSmoothingEnabled = true
+    ectx.imageSmoothingQuality = 'high'
 
-    // Center in 512x512 with gentle padding
-    const srcX = 190
-    const srcY = 90
-    const srcSize = 660
+    // Add safe padding to mascot bounding box (capped at bounds and strictly <= 650)
+    const pad = 8
+    const cropX = Math.max(0, minX - pad)
+    const cropY = Math.max(0, minY - pad)
+    const cropW = Math.min(1024 - cropX, (maxX - minX + 1) + pad * 2)
+    const cropH = Math.min(650 - cropY, (maxY - minY + 1) + pad * 2)
 
-    ectx.drawImage(masterCanvas, srcX, srcY, srcSize, srcSize, 16, 16, 480, 480)
+    // Center in 512x512 with balanced padding
+    const maxDimension = 464
+    const scale = Math.min(maxDimension / cropW, maxDimension / cropH)
+    const dw = Math.round(cropW * scale)
+    const dh = Math.round(cropH * scale)
+    const dx = Math.round((512 - dw) / 2)
+    const dy = Math.round((512 - dh) / 2)
 
+    ectx.drawImage(cleanMaster, cropX, cropY, cropW, cropH, dx, dy, dw, dh)
     const emblemDataUrl = emblemCanvas.toDataURL('image/png')
 
-    // Step 3: Function to generate resized icons
+    // Step 3: Function to generate resized icons from clean emblem
     const makeIcon = (size) => {
       const c = document.createElement('canvas')
       c.width = size
@@ -119,13 +152,25 @@ async function processLogo() {
       return c.toDataURL('image/png')
     }
 
+    // 128 icon from full logo preserving brand text
+    const makeFullIcon = (size) => {
+      const c = document.createElement('canvas')
+      c.width = size
+      c.height = size
+      const ctx = c.getContext('2d')
+      ctx.imageSmoothingEnabled = true
+      ctx.imageSmoothingQuality = 'high'
+      ctx.drawImage(masterCanvas, 0, 0, size, size)
+      return c.toDataURL('image/png')
+    }
+
     return {
       fullLogo: fullTransparentDataUrl,
       emblem: emblemDataUrl,
       icon16: makeIcon(16),
       icon32: makeIcon(32),
       icon48: makeIcon(48),
-      icon128: makeIcon(128),
+      icon128: makeFullIcon(128),
     }
   }, imgBase64)
 
@@ -165,11 +210,16 @@ async function processLogo() {
             color: #ffffff;
             overflow: hidden;
           }
-          .icon-wrapper img {
-            width: 110px;
-            height: 110px;
-            filter: drop-shadow(0 12px 30px rgba(245, 158, 11, 0.45));
+          .icon-wrapper {
+            display: flex;
+            align-items: center;
+            justify-content: center;
             margin-bottom: 12px;
+          }
+          .icon-wrapper img {
+            width: 104px;
+            height: 104px;
+            filter: drop-shadow(0 10px 25px rgba(245, 158, 11, 0.45));
           }
           h1 {
             font-size: 26px;
@@ -223,7 +273,9 @@ async function processLogo() {
             max-width: 680px;
           }
           .badge {
-            display: inline-block;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
             background: rgba(245, 158, 11, 0.15);
             border: 1px solid rgba(245, 158, 11, 0.4);
             color: #fbbf24;
@@ -236,12 +288,15 @@ async function processLogo() {
             letter-spacing: 1px;
           }
           h1 {
-            font-size: 54px;
+            font-size: 52px;
             font-weight: 900;
-            line-height: 1.1;
+            line-height: 1.15;
             margin-bottom: 16px;
             letter-spacing: -1.5px;
-            background: linear-gradient(90deg, #ffffff 30%, #fbbf24 100%);
+            color: #ffffff;
+          }
+          h1 .highlight {
+            background: linear-gradient(90deg, #ffffff 10%, #fbbf24 100%);
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
           }
@@ -264,17 +319,39 @@ async function processLogo() {
             color: #cbd5e1;
             font-weight: 600;
           }
+          .right {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+          }
           .right img {
-            width: 380px;
-            height: 380px;
-            filter: drop-shadow(0 25px 60px rgba(245, 158, 11, 0.45));
+            width: 330px;
+            height: 330px;
+            filter: drop-shadow(0 20px 50px rgba(245, 158, 11, 0.45));
+          }
+          .brand-lockup {
+            display: flex;
+            align-items: center;
+            margin-top: 14px;
+            font-size: 38px;
+            font-weight: 800;
+            letter-spacing: -0.5px;
+          }
+          .brand-ctx {
+            color: #ffffff;
+          }
+          .brand-lion {
+            background: linear-gradient(135deg, #fbbf24 0%, #f59e0b 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
           }
         </style>
       </head>
       <body>
         <div class="left">
-          <div class="badge">Local-First • Manifest V3</div>
-          <h1>Turn any webpage into AI-ready Context.</h1>
+          <div class="badge">🦁 ContextLion • Manifest V3</div>
+          <h1>Turn any webpage into<br/><span class="highlight">AI-ready Context.</span></h1>
           <p>Extract articles cleanly, remove noise & ads, convert to GFM Markdown with CJK-aware token estimation.</p>
           <div class="pills">
             <div class="pill">⚡ One-Click Copy</div>
@@ -285,6 +362,9 @@ async function processLogo() {
         </div>
         <div class="right">
           <img src="${results.emblem}" alt="ContextLion" />
+          <div class="brand-lockup">
+            <span class="brand-ctx">Context</span><span class="brand-lion">Lion</span>
+          </div>
         </div>
       </body>
     </html>
