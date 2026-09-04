@@ -335,7 +335,8 @@ async function switchToPackMode() {
 }
 
 function selectAllTabs(select: boolean) {
-  for (const group of tabGroups.value) {
+  const targetGroups = packSearchQuery.value.trim() ? filteredTabGroups.value : tabGroups.value
+  for (const group of targetGroups) {
     for (const item of group.items) {
       if (item.isExtractable) {
         item.isSelected = select

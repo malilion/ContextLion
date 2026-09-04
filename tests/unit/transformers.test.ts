@@ -85,4 +85,27 @@ const a = 1;
     expect(plain).not.toContain('**')
     expect(plain).not.toContain('#')
   })
+
+  it('replaces bloated base64 data URL images with concise placeholders', () => {
+    const html = `
+      <p>Here is an embedded pixel:</p>
+      <img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNk+M9QDwADhgGAWjR9awAAAABJRU5ErkJggg==" alt="Red Dot" />
+      <img src="https://example.com/photo.jpg" alt="Remote Photo" />
+    `
+    const md = htmlToMarkdown(html)
+
+    expect(md).toContain('[Image: Red Dot]')
+    expect(md).not.toContain('data:image/png;base64')
+    expect(md).toContain('![Remote Photo](https://example.com/photo.jpg)')
+  })
+
+  it('adapts fence backtick count if code block contains triple backticks', () => {
+    const html = `
+      <pre><code>Here is markdown example:\n\`\`\`python\nprint("hi")\n\`\`\`</code></pre>
+    `
+    const md = htmlToMarkdown(html)
+
+    // Outer fence should use at least 4 backticks so it does not collide with inner ```
+    expect(md).toMatch(/````[\s\S]*```python[\s\S]*````/)
+  })
 })

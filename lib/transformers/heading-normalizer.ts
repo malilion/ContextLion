@@ -18,7 +18,7 @@ export function normalizeHeadings(markdown: string): string {
 
   for (const line of lines) {
     const trimmed = line.trim()
-    if (trimmed.startsWith('```')) {
+    if (trimmed.startsWith('```') || trimmed.startsWith('~~~')) {
       inCodeBlock = !inCodeBlock
       continue
     }
@@ -51,7 +51,7 @@ export function normalizeHeadings(markdown: string): string {
   inCodeBlock = false
   const normalizedLines = lines.map((line) => {
     const trimmed = line.trim()
-    if (trimmed.startsWith('```')) {
+    if (trimmed.startsWith('```') || trimmed.startsWith('~~~')) {
       inCodeBlock = !inCodeBlock
       return line
     }

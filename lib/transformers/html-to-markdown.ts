@@ -8,6 +8,13 @@ export interface MarkdownTransformOptions {
   normalizeHeadings?: boolean
 }
 
+function getCodeFence(code: string): string {
+  const matches = code.match(/`{3,}/g)
+  if (!matches) return '```'
+  const maxLen = Math.max(...matches.map((m) => m.length))
+  return '`'.repeat(maxLen + 1)
+}
+
 /**
  * Creates and configures a TurndownService instance with GFM tables and custom code block rules.
  */
@@ -40,8 +47,9 @@ export function createTurndownService(options: MarkdownTransformOptions = {}): T
       const langMatch = className.match(/(?:language-|lang-)(\S+)/)
       const lang = langMatch ? langMatch[1] : ''
       const codeText = codeEl?.textContent || ''
+      const fence = getCodeFence(codeText)
 
-      return `\n\n\`\`\`${lang}\n${codeText.replace(/\n+$/, '')}\n\`\`\`\n\n`
+      return `\n\n${fence}${lang}\n${codeText.replace(/\n+$/, '')}\n${fence}\n\n`
     },
   })
 
@@ -56,7 +64,23 @@ export function createTurndownService(options: MarkdownTransformOptions = {}): T
     replacement: (_content, node) => {
       const el = node as HTMLElement
       const codeText = el.textContent || ''
-      return `\n\n\`\`\`\n${codeText.replace(/\n+$/, '')}\n\`\`\`\n\n`
+      const fence = getCodeFence(codeText)
+      return `\n\n${fence}\n${codeText.replace(/\n+$/, '')}\n${fence}\n\n`
+    },
+  })
+
+  // Strip bloated base64 data URLs in images to save context window tokens
+  service.addRule('cleanDataUrlImages', {
+    filter: (node) => {
+      if (node.nodeName === 'IMG') {
+        const src = (node as HTMLElement).getAttribute('src') || ''
+        return src.startsWith('data:')
+      }
+      return false
+    },
+    replacement: (_content, node) => {
+      const alt = (node as HTMLElement).getAttribute('alt') || ''
+      return alt ? `[Image: ${alt}]` : ''
     },
   })
 

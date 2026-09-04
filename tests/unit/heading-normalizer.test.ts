@@ -73,4 +73,18 @@ More content
     expect(output).toContain('# This is a Python comment that must not become a heading')
     expect(output).toContain('### Another comment inside code')
   })
+
+  it('never touches hash symbols inside tilde fenced code blocks (~~~)', () => {
+    const input = `
+### Heading Outside
+
+~~~bash
+# Shell comment inside tilde code block
+echo "hello"
+~~~
+    `
+    const output = normalizeHeadings(input)
+    expect(output).toContain('## Heading Outside')
+    expect(output).toContain('# Shell comment inside tilde code block')
+  })
 })
