@@ -3,6 +3,19 @@ import type { RawExtraction } from '../../types/context'
 import { extractMetadata } from './extract-metadata'
 import { cleanDom } from '../cleaner/clean-dom'
 
+/**
+ * Escapes HTML-significant characters so untrusted text cannot break out
+ * of its element context if the resulting HTML is ever rendered.
+ */
+function escapeHtml(text: string): string {
+  return text
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&#39;')
+}
+
 const OVERLAY_ID = '__context_lion_picker_overlay'
 const BANNER_ID = '__context_lion_picker_banner'
 
@@ -222,7 +235,7 @@ export function startElementPicker(onPicked?: (extraction: RawExtraction) => voi
 
     const rawExtraction: RawExtraction = {
       metadata,
-      contentHtml: sanitizedHtml || `<p>${rawText}</p>`,
+      contentHtml: sanitizedHtml || `<p>${escapeHtml(rawText)}</p>`,
       textContent: rawText,
     }
 

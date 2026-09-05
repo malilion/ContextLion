@@ -6,6 +6,10 @@ export default defineConfig({
     name: 'ContextLion',
     description: 'Turn any webpage into clean, structured, AI-ready context.',
     permissions: ['activeTab', 'scripting', 'storage', 'tabs', 'unlimitedStorage'],
+    content_security_policy: {
+      extension_pages:
+        "script-src 'self'; object-src 'self'; base-uri 'self'; frame-ancestors 'none'",
+    },
     browser_specific_settings: {
       gecko: {
         id: 'contextlion@malilion.dev',

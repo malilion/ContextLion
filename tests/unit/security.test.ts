@@ -1,6 +1,8 @@
-import { describe, it, expect } from 'vitest'
+import { describe, it, expect, vi } from 'vitest'
+import DOMPurify from 'dompurify'
 import { cleanDom } from '../../lib/cleaner/clean-dom'
 import { extractMetadata } from '../../lib/extractor/extract-metadata'
+import { extractSelection, escapeHtml } from '../../lib/extractor/extract-selection'
 import { normalizeUrl } from '../../lib/context/normalize-url'
 import { exportContextPackToZip } from '../../lib/export/zip-exporter'
 import { createContextPack } from '../../lib/context/context-pack-builder'
@@ -52,6 +54,69 @@ describe('Security & Hardening Test Suite', () => {
       expect(div.getAttribute('onclick')).toBeNull()
       expect(div.getAttribute('style')).toBeNull()
       expect(div.querySelector('span')?.getAttribute('onmouseover')).toBeNull()
+    })
+  })
+
+  describe('VULN-04 / Unescaped Fallback Interpolation', () => {
+    // When DOMPurify strips all markup and returns an empty string, the code
+    // falls back to wrapping rawText in a <p>. That rawText must be HTML-escaped
+    // so it cannot inject markup if contentHtml is ever rendered downstream.
+    function selectAll(doc: Document, win: Window): void {
+      const range = doc.createRange()
+      range.selectNodeContents(doc.body)
+      const selection = win.getSelection()
+      selection?.removeAllRanges()
+      selection?.addRange(range)
+    }
+
+    it('properly escapes HTML special characters in escapeHtml helper', () => {
+      expect(escapeHtml('<img src=x onerror=alert(1)> & "quoted" \'single\'')).toBe(
+        '&lt;img src=x onerror=alert(1)&gt; &amp; &quot;quoted&quot; &#39;single&#39;'
+      )
+    })
+
+    it('HTML-escapes rawText in the fallback <p> when sanitized HTML is empty', () => {
+      const doc = document.implementation.createHTMLDocument('Fallback Test')
+      doc.body.textContent = '<img src=x onerror=alert(1)> & "quoted" \'single\''
+
+      selectAll(doc, window)
+
+      const sanitizeSpy = vi.spyOn(DOMPurify, 'sanitize').mockReturnValueOnce('')
+      const result = extractSelection(doc, window)
+      sanitizeSpy.mockRestore()
+
+      expect(result).not.toBeNull()
+      const html = result!.contentHtml
+      // Wraps in fallback <p> with escaped text
+      expect(html).toBe(
+        '<p>&lt;img src=x onerror=alert(1)&gt; &amp; &quot;quoted&quot; &#39;single&#39;</p>'
+      )
+      // No raw executable/injectable markup should survive
+      expect(html).not.toContain('<img')
+      // Dangerous characters must be entity-encoded
+      expect(html).toContain('&lt;img')
+      expect(html).toContain('&amp;')
+      expect(html).toContain('&quot;')
+      expect(html).toContain('&#39;')
+      // Parsing as HTML produces text only, not executable elements or event handlers
+      const probe = doc.createElement('div')
+      probe.innerHTML = html
+      expect(probe.querySelector('img')).toBeNull()
+      expect(probe.querySelector('[onerror]')).toBeNull()
+      // Raw textContent is preserved unescaped for AI/markdown consumers
+      expect(result!.textContent).toContain('<img src=x onerror=alert(1)>')
+    })
+
+    it('does not double-escape or corrupt plain text selections', () => {
+      const doc = document.implementation.createHTMLDocument('Plain Text Test')
+      doc.body.textContent = 'Simple plain selection text'
+
+      selectAll(doc, window)
+      const result = extractSelection(doc, window)
+
+      expect(result).not.toBeNull()
+      expect(result!.contentHtml).toContain('Simple plain selection text')
+      expect(result!.contentHtml).not.toContain('&amp;amp;')
     })
   })
 
