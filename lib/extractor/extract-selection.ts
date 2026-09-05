@@ -4,6 +4,19 @@ import { extractMetadata } from './extract-metadata'
 import { cleanDom } from '../cleaner/clean-dom'
 
 /**
+ * Escapes HTML-significant characters so untrusted text cannot break out
+ * of its element context if the resulting HTML is ever rendered.
+ */
+export function escapeHtml(text: string): string {
+  return text
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&#39;')
+}
+
+/**
  * Extracts currently highlighted/selected content from the active document.
  * Returns null if there is no active selection.
  */
@@ -78,7 +91,7 @@ export function extractSelection(doc: Document, win: Window): RawExtraction | nu
 
   return {
     metadata,
-    contentHtml: sanitizedHtml || `<p>${rawText}</p>`,
+    contentHtml: sanitizedHtml || `<p>${escapeHtml(rawText)}</p>`,
     textContent: rawText,
   }
 }
