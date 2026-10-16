@@ -14,7 +14,7 @@
 </p>
 
 <p align="center">
-  <a href="https://opensource.org/licenses/MIT"><img src="https://img.shields.io/badge/License-MIT-amber.svg" alt="MIT License" /></a>
+  <a href="https://www.apache.org/licenses/LICENSE-2.0"><img src="https://img.shields.io/badge/License-Apache--2.0-amber.svg" alt="Apache-2.0 License" /></a>
   <a href="https://developer.chrome.com/docs/extensions/mv3/intro/"><img src="https://img.shields.io/badge/Manifest-V3-blue.svg" alt="Manifest V3" /></a>
   <a href="https://wxt.dev/"><img src="https://img.shields.io/badge/Framework-WXT%200.21.4-purple.svg" alt="WXT Framework" /></a>
   <img src="https://img.shields.io/badge/Privacy-100%25%20Local--First-emerald.svg" alt="100% Local-First" />
@@ -206,5 +206,5 @@ pnpm build && pnpm zip
 
 ## 📄 開源授權
 
-本專案採用 [MIT 授權條款](LICENSE) 開源發布。
+本專案採用 [Apache License 2.0 授權條款](LICENSE) 開源發布。
 由 **Malilion Browser Tools** 團隊精心打造。
