@@ -2,7 +2,7 @@
   "name": "context-lion",
   "version": "1.0.0",
   "description": "Turn any webpage into clean, structured, AI-ready context.",
-  "license": "MIT",
+  "license": "Apache-2.0",
   "author": "Malilion Browser Tools Team <malilion.dev@gmail.com>",
   "repository": {
     "type": "git",

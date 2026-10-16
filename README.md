@@ -14,7 +14,7 @@
 </p>
 
 <p align="center">
-  <a href="https://opensource.org/licenses/MIT"><img src="https://img.shields.io/badge/License-MIT-amber.svg" alt="MIT License" /></a>
+  <a href="https://www.apache.org/licenses/LICENSE-2.0"><img src="https://img.shields.io/badge/License-Apache--2.0-amber.svg" alt="Apache-2.0 License" /></a>
   <a href="https://developer.chrome.com/docs/extensions/mv3/intro/"><img src="https://img.shields.io/badge/Manifest-V3-blue.svg" alt="Manifest V3" /></a>
   <a href="https://wxt.dev/"><img src="https://img.shields.io/badge/Framework-WXT%200.21.4-purple.svg" alt="WXT Framework" /></a>
   <img src="https://img.shields.io/badge/Privacy-100%25%20Local--First-emerald.svg" alt="100% Local-First" />
@@ -207,5 +207,5 @@ pnpm build && pnpm zip
 
 ## 📄 License
 
-Distributed under the [MIT License](LICENSE).
+Distributed under the [Apache License 2.0](LICENSE).
 Crafted with pride by the **Malilion Browser Tools** team.
