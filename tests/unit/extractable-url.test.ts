@@ -24,9 +24,9 @@ describe('isExtractableUrl web store host check', () => {
     expect(isExtractableUrl('https://chromewebstore.google.com.evil.example/detail/abc').ok).toBe(
       true
     )
-    expect(isExtractableUrl('https://evil.example/?next=https://chromewebstore.google.com').ok).toBe(
-      true
-    )
+    expect(
+      isExtractableUrl('https://evil.example/?next=https://chromewebstore.google.com').ok
+    ).toBe(true)
     expect(isExtractableUrl('https://evil.example/chromewebstore.google.com').ok).toBe(true)
     expect(isExtractableUrl('https://chromewebstore.google.com@evil.example/').ok).toBe(true)
     expect(isExtractableUrl('https://notchrome.google.com/webstore').ok).toBe(true)
