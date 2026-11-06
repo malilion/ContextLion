@@ -13,6 +13,27 @@ const RESTRICTED_SCHEMES = [
   'javascript:',
 ]
 
+/**
+ * Chrome Web Store pages reject extension injection.
+ * Compare the parsed hostname so a lookalike or an embedded string cannot match.
+ */
+function isChromeWebStoreUrl(rawUrl: string): boolean {
+  let parsed: URL
+  try {
+    parsed = new URL(rawUrl)
+  } catch {
+    return false
+  }
+
+  const hostname = parsed.hostname
+  if (hostname === 'chromewebstore.google.com' || hostname.endsWith('.chromewebstore.google.com')) {
+    return true
+  }
+
+  const path = parsed.pathname
+  return hostname === 'chrome.google.com' && (path === '/webstore' || path.startsWith('/webstore/'))
+}
+
 export interface ActiveTabInfo {
   id: number
   url: string
@@ -56,7 +77,7 @@ export function isExtractableUrl(url: string): { ok: boolean; reason?: string } 
     }
   }
 
-  if (url.includes('chromewebstore.google.com') || url.includes('chrome.google.com/webstore')) {
+  if (isChromeWebStoreUrl(url)) {
     return {
       ok: false,
       reason: 'Chrome Web Store prohibits extension script injection.',
