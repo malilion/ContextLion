@@ -209,3 +209,8 @@ pnpm build && pnpm zip
 
 Distributed under the [Apache License 2.0](LICENSE).
 Crafted with pride by the **Malilion Browser Tools** team.
+
+---
+
+<!-- malilion-ecosystem-footer -->
+<p align="center"><sub>🦁 Part of the <a href="https://github.com/malilion">MaliLion</a> ecosystem · <a href="https://malilion.com">malilion.com</a> · <a href="https://github.com/malilion?tab=repositories">More projects</a></sub></p>
